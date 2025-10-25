@@ -25,7 +25,8 @@ router.get("/store/:storeId/date/:date", verifyToken, async (req, res) => {
       .populate("store", "storeNumber storeName")
       .populate("user", "name email")
       .populate("morningCheck.checkedBy", "name email")
-      .populate("giftCards.type", "name");
+      .populate("giftCards.type", "name")
+      .populate("vouchers.voucherType", "category name");
 
     // 없으면 자동 생성
     if (!dailyCash) {
@@ -47,11 +48,11 @@ router.get("/store/:storeId/date/:date", verifyToken, async (req, res) => {
   }
 });
 
-// 시재금 정보 업데이트 (입금, 상품권, 이월, 판매정보)
+// 시재금 정보 업데이트 (입금, 상품권, 권면, 이월, 판매정보)
 router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.params;
-    const { deposit, giftCards, carryOver, sales, note } = req.body;
+    const { deposit, giftCards, vouchers, carryOver, sales, note } = req.body;
 
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
@@ -80,6 +81,11 @@ router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
       dailyCash.giftCards = giftCards;
     }
 
+    // 권면 정보 업데이트 (패키지권, 티켓)
+    if (vouchers) {
+      dailyCash.vouchers = vouchers;
+    }
+
     // 이월 시재 정보 업데이트
     if (carryOver) {
       dailyCash.carryOver = carryOver;
@@ -102,6 +108,7 @@ router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
     await dailyCash.populate("store", "storeNumber storeName");
     await dailyCash.populate("user", "name email");
     await dailyCash.populate("giftCards.type", "name");
+    await dailyCash.populate("vouchers.voucherType", "category name");
 
     res.json({ success: true, dailyCash });
   } catch (error) {
@@ -169,6 +176,7 @@ router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, 
     await dailyCash.populate("store", "storeNumber storeName");
     await dailyCash.populate("user", "name email");
     await dailyCash.populate("morningCheck.checkedBy", "name email");
+    await dailyCash.populate("vouchers.voucherType", "category name");
 
     res.json({
       success: true,
@@ -206,6 +214,7 @@ router.get("/discrepancies", verifyToken, verifyAdmin, async (req, res) => {
       .populate("store", "storeNumber storeName")
       .populate("user", "name email")
       .populate("morningCheck.checkedBy", "name email")
+      .populate("vouchers.voucherType", "category name")
       .sort({ date: -1 })
       .limit(100);
 
@@ -257,6 +266,7 @@ router.get("/history", verifyToken, async (req, res) => {
       .populate("user", "name email")
       .populate("morningCheck.checkedBy", "name email")
       .populate("giftCards.type", "name")
+      .populate("vouchers.voucherType", "category name")
       .sort({ date: -1 })
       .limit(100);
 

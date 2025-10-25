@@ -15,6 +15,7 @@ const payrollRouter = require("./routes/payrollRouter");
 const giftCardRouter = require("./routes/giftCardRouter");
 const dailyCashRouter = require("./routes/dailyCashRouter");
 const disposalRouter = require("./routes/disposalRouter");
+const voucherRouter = require("./routes/voucherRouter");
 
 const { initDailyInventoryScheduler } = require("./utils/dailyInventoryScheduler");
 
@@ -50,9 +51,10 @@ app.use("/api/payroll", payrollRouter);
 app.use("/api/gift-cards", giftCardRouter);
 app.use("/api/daily-cash", dailyCashRouter);
 app.use("/api/disposal", disposalRouter);
+app.use("/api/vouchers", voucherRouter);
 
 app.get("/", (req, res) => {
-  res.send("ERP Server Running with Cash Management & Disposal System ✅");
+  res.send("ERP Server Running with Cash Management & Voucher System ✅");
 });
 
 const PORT = process.env.PORT || 3001;

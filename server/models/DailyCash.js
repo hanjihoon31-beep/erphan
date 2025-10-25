@@ -42,6 +42,18 @@ const dailyCashSchema = new mongoose.Schema({
     amount: { type: Number, default: 0 }
   }],
 
+  // 권면 (패키지권, 티켓 등)
+  // 같은 권종이지만 금액대가 다를 수 있음 (예: 11,000원권 3장, 8,000원권 2장)
+  vouchers: [{
+    voucherType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "VoucherType",
+      required: true
+    },
+    amount: { type: Number, required: true }, // 권면 금액
+    quantity: { type: Number, required: true, min: 1 } // 수량
+  }],
+
   // 이월 시재 (다음날을 위한 준비금)
   carryOver: {
     bill10000: { type: Number, default: 0 }, // 1만원권
