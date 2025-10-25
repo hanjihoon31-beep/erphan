@@ -1,8 +1,8 @@
 // src/pages/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import apiClient from "../config/api";
 import { useAuth } from "../context/AuthContext";
 
 const COLORS = ["#4F46E5", "#10B981", "#F59E0B", "#EF4444"];
@@ -27,9 +27,9 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       const [inventoryRes, userRes, logRes] = await Promise.all([
-        axios.get("http://localhost:3001/api/inventory"),
-        axios.get("http://localhost:3001/api/users"),
-        axios.get("http://localhost:3001/api/logs"),
+        apiClient.get("/api/inventory"),
+        apiClient.get("/api/users"),
+        apiClient.get("/api/logs"),
       ]);
 
       const inventory = inventoryRes.data.inventory || [];

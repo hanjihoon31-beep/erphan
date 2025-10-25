@@ -1,6 +1,6 @@
 // ✅ src/components/RegisterModal.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import apiClient from "../config/api";
 import naruatoLogo from "../assets/naruato-logo.jpg";
 
 export default function RegisterModal({ onClose }) {
@@ -25,7 +25,7 @@ export default function RegisterModal({ onClose }) {
       setLoading(true);
 
       // ✅ 서버에 회원가입 요청 (status: "대기"로 저장됨)
-      const res = await axios.post("http://localhost:3001/api/auth/register", form);
+      const res = await apiClient.post("/api/auth/register", form);
 
       if (res.data.success) {
         alert("✅ 회원가입 완료! 관리자 승인 후 로그인 가능합니다.\n(승인 시 이메일로 알림이 전송됩니다)");

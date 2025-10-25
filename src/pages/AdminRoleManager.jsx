@@ -1,7 +1,7 @@
 // src/pages/AdminRoleManager.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
+import apiClient from "../config/api";
 import { useAuth } from "../context/AuthContext";
 
 const AdminRoleManager = () => {
@@ -19,7 +19,7 @@ const AdminRoleManager = () => {
   // ✅ 전체 유저 목록 불러오기
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/users");
+      const res = await apiClient.get("/api/users");
       if (res.data.success) setUsers(res.data.users);
     } catch (err) {
       console.error("❌ 유저 불러오기 오류:", err);
@@ -35,7 +35,7 @@ const AdminRoleManager = () => {
     if (!window.confirm(`${employeeId}의 역할을 ${newRole}으로 변경하시겠습니까?`)) return;
 
     try {
-      const res = await axios.put("http://localhost:3001/api/users/role", {
+      const res = await apiClient.put("/api/users/role", {
         employeeId,
         newRole,
       });
@@ -58,7 +58,7 @@ const AdminRoleManager = () => {
     if (!window.confirm(`${employeeId} 계정을 비활성화하시겠습니까?`)) return;
 
     try {
-      const res = await axios.put("http://localhost:3001/api/users/deactivate", {
+      const res = await apiClient.put("/api/users/deactivate", {
         employeeId,
       });
 

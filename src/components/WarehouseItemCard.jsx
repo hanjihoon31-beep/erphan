@@ -1,11 +1,12 @@
 import React from "react";
+import { API_URL } from "../config/api";
 
 export default function WarehouseItemCard({ item, onEdit, onDelete }) {
   return (
     <div className="border rounded-lg p-3 shadow-sm flex flex-col gap-2 bg-white hover:shadow-md transition">
       {item.photo && (
         <img
-          src={`http://localhost:3001${item.photo}`}
+          src={`${API_URL}${item.photo}`}
           alt={item.name}
           className="w-full h-32 object-cover rounded-md"
         />

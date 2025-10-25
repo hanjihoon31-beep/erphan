@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
+import apiClient from "../config/api";
 import { useAuth } from "../context/AuthContext";
 
 const AdminApproval = () => {
@@ -20,8 +20,8 @@ const AdminApproval = () => {
     setLoading(true);
     try {
       const [usersRes, inventoryRes] = await Promise.all([
-        axios.get("http://localhost:3001/api/admin/pending"),
-        axios.get("http://localhost:3001/api/inventory"),
+        apiClient.get("/api/admin/pending"),
+        apiClient.get("/api/inventory"),
       ]);
       setUserRequests(usersRes.data || []);
       setInventoryRequests(
@@ -39,7 +39,7 @@ const AdminApproval = () => {
     if (!canApprove) return alert("권한이 없습니다.");
     if (!window.confirm("해당 직원을 승인하시겠습니까?")) return;
     try {
-      await axios.put(`http://localhost:3001/api/admin/approve/${id}`);
+      await apiClient.put(`/api/admin/approve/${id}`);
       alert("✅ 직원 승인 완료");
       fetchData();
     } catch (err) {
@@ -54,7 +54,7 @@ const AdminApproval = () => {
     const reason = prompt("거부 사유를 입력해주세요:");
     if (!reason) return;
     try {
-      await axios.put(`http://localhost:3001/api/admin/reject/${id}`, { reason });
+      await apiClient.put(`/api/admin/reject/${id}`, { reason });
       alert("❌ 직원 요청 거부 완료");
       fetchData();
     } catch (err) {
@@ -67,7 +67,7 @@ const AdminApproval = () => {
   const handleRoleChange = async (id, newRole) => {
     if (user?.role !== "superadmin") return alert("최고관리자만 수정 가능합니다.");
     try {
-      await axios.put(`http://localhost:3001/api/admin/update-role/${id}`, {
+      await apiClient.put(`/api/admin/update-role/${id}`, {
         role: newRole,
       });
       alert("✅ 권한이 변경되었습니다.");
@@ -82,7 +82,7 @@ const AdminApproval = () => {
   const handleInventoryApprove = async (id) => {
     if (!canApprove) return alert("권한이 없습니다.");
     try {
-      await axios.put(`http://localhost:3001/api/inventory/${id}/approve`);
+      await apiClient.put(`/api/inventory/${id}/approve`);
       alert("✅ 재고 요청 승인 완료");
       fetchData();
     } catch (err) {
@@ -97,7 +97,7 @@ const AdminApproval = () => {
     const reason = prompt("거부 사유를 입력해주세요:");
     if (!reason) return;
     try {
-      await axios.put(`http://localhost:3001/api/inventory/${id}/reject`, { reason });
+      await apiClient.put(`/api/inventory/${id}/reject`, { reason });
       alert("❌ 재고 요청 거부 완료");
       fetchData();
     } catch (err) {

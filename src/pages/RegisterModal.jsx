@@ -1,8 +1,8 @@
 // src/pages/RegisterModal.jsx
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import apiClient from "../config/api";
 import naruatoLogo from "../assets/naruato-logo.jpg";
 
 const RegisterModal = ({ onClose }) => {
@@ -29,7 +29,7 @@ const RegisterModal = ({ onClose }) => {
     try {
       // 역할은 항상 근무자
       const payload = { ...formData, role: "근무자" };
-      const res = await axios.post("http://localhost:3001/api/auth/register", payload);
+      const res = await apiClient.post("/api/auth/register", payload);
 
       if (res.data?.success) {
         setMessage("✅ 가입 요청이 완료되었습니다. 최고관리자 승인 후 사용 가능합니다.");

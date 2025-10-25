@@ -1,8 +1,8 @@
 // src/context/InventoryContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 import { io } from "socket.io-client";
 import { useAuth } from "./AuthContext";
+import apiClient, { API_URL } from "../config/api";
 
 const InventoryContext = createContext();
 export default InventoryContext;
@@ -15,12 +15,12 @@ export function InventoryProvider({ children }) {
   const { user } = useAuth();
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const socket = io("http://localhost:3001");
+  const socket = io(API_URL);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/api/inventory");
+        const res = await apiClient.get("/api/inventory");
         if (res.data.success) setInventory(res.data.inventory);
       } catch (err) {
         console.error("❌ 재고 로드 실패:", err);
@@ -60,8 +60,8 @@ export function InventoryProvider({ children }) {
       }
 
       // 관리자 이상은 즉시 처리
-      const res = await axios.post(
-        `http://localhost:3001/api/inventory/${endpoint}`,
+      const res = await apiClient.post(
+        `/api/inventory/${endpoint}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -80,7 +80,7 @@ export function InventoryProvider({ children }) {
 
   const deleteItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/inventory/${id}`);
+      await apiClient.delete(`/api/inventory/${id}`);
       setInventory((prev) => prev.filter((i) => i._id !== id));
     } catch (err) {
       console.error("삭제 실패:", err);

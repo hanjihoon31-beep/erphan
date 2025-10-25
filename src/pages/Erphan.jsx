@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import apiClient from "../config/api";
 import "./Erphan.css";
 
 export default function Erphan() {
@@ -23,8 +23,8 @@ export default function Erphan() {
     setLoading(true);
     try {
       const [usersRes, inventoryRes] = await Promise.all([
-        axios.get("http://localhost:3001/api/admin/pending"),
-        axios.get("http://localhost:3001/api/inventory"),
+        apiClient.get("/api/admin/pending"),
+        apiClient.get("/api/inventory"),
       ]);
 
       const userCount = usersRes.data?.length || 0;
