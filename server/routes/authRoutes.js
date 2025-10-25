@@ -44,6 +44,9 @@ router.post("/login", async (req, res) => {
     if (user.status === "rejected")
       return res.status(403).json({ message: "승인이 거절된 계정입니다." });
 
+    if (user.status === "inactive")
+      return res.status(403).json({ message: "비활성화된 계정입니다. 관리자에게 문의하세요." });
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
