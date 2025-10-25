@@ -3,8 +3,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const authRouter = require("./routes/authRouter");
+
+// 라우터 불러오기
+const authRouter = require("./routes/authRoutes");
 const adminRouter = require("./routes/adminRouter");
+const storeRoutes = require("./routes/storeRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
+const salesRoutes = require("./routes/salesRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes");
 
 dotenv.config();
 const app = express();
@@ -21,9 +27,13 @@ mongoose
 // ✅ 라우터 연결
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api", storeRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/sales", salesRoutes);
+app.use("/api/inventory", inventoryRoutes);
 
 app.get("/", (req, res) => {
-  res.send("ERP Server Running with Admin Approval System ✅");
+  res.send("ERP Server Running ✅");
 });
 
 const PORT = process.env.PORT || 3001;
