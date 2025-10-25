@@ -69,6 +69,33 @@ router.put("/stores/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// 매장 삭제 (관리자 전용)
+router.delete("/stores/:id", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const storeId = req.params.id;
+
+    // 해당 매장과 관련된 데이터 확인
+    const relatedInventory = await Inventory.countDocuments({ store: storeId });
+
+    if (relatedInventory > 0) {
+      return res.status(400).json({
+        message: `이 매장에는 ${relatedInventory}개의 재고 데이터가 있습니다. 먼저 재고를 처리해주세요.`
+      });
+    }
+
+    const deletedStore = await Store.findByIdAndDelete(storeId);
+
+    if (!deletedStore) {
+      return res.status(404).json({ message: "매장을 찾을 수 없습니다." });
+    }
+
+    res.json({ success: true, message: "매장이 삭제되었습니다." });
+  } catch (error) {
+    console.error("매장 삭제 오류:", error);
+    res.status(500).json({ message: "매장 삭제 실패" });
+  }
+});
+
 // ==================== 창고 관리 ====================
 
 // 전체 창고 목록 조회
