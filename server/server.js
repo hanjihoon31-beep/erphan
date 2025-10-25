@@ -9,6 +9,9 @@ const inventoryRouter = require("./routes/inventoryRouter");
 const reportRouter = require("./routes/reportRouter");
 const dailyInventoryRouter = require("./routes/dailyInventoryRouter");
 const equipmentRouter = require("./routes/equipmentRouter");
+const attendanceRouter = require("./routes/attendanceRouter");
+const attendanceCheckRouter = require("./routes/attendanceCheckRouter");
+const payrollRouter = require("./routes/payrollRouter");
 
 const { initDailyInventoryScheduler } = require("./utils/dailyInventoryScheduler");
 
@@ -38,9 +41,12 @@ app.use("/api/inventory", inventoryRouter);
 app.use("/api/reports", reportRouter);
 app.use("/api/daily-inventory", dailyInventoryRouter);
 app.use("/api/equipment", equipmentRouter);
+app.use("/api/attendance", attendanceRouter);
+app.use("/api/attendance-check", attendanceCheckRouter);
+app.use("/api/payroll", payrollRouter);
 
 app.get("/", (req, res) => {
-  res.send("ERP Server Running with Daily Inventory & Equipment Management ✅");
+  res.send("ERP Server Running with Complete Attendance & Payroll System ✅");
 });
 
 const PORT = process.env.PORT || 3001;
