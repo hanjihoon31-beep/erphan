@@ -10,9 +10,6 @@ const wageSettingsSchema = new mongoose.Schema({
   // 시급 적용 시작일
   effectiveDate: { type: Date, required: true, default: Date.now },
 
-  // 공휴일/특근 배율
-  holidayMultiplier: { type: Number, default: 1.5 },
-
   // 설정한 관리자
   setBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 

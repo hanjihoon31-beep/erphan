@@ -220,7 +220,6 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
     const breakdown = {
       normalWorkMinutes: 0,
       overtimeMinutes: 0,
-      holidayWorkMinutes: 0,
       additionalMinutes: 0,
       incentiveMinutes: 0,
       totalMealCount: 0,
@@ -236,16 +235,11 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
         checkOutTime: att.checkOutTime,
         actualWorkMinutes: att.actualWorkMinutes,
         overtimeMinutes: att.overtimeMinutes,
-        isHolidayPay: att.isHolidayPay,
         mealCount: att.mealCount + att.additionalMealCount
       };
 
-      // 공휴일/특근 여부에 따라 분류
-      if (att.isHolidayPay) {
-        breakdown.holidayWorkMinutes += att.actualWorkMinutes;
-      } else {
-        breakdown.normalWorkMinutes += att.actualWorkMinutes;
-      }
+      // 모든 근무시간을 normalWorkMinutes로 통합
+      breakdown.normalWorkMinutes += att.actualWorkMinutes;
 
       breakdown.overtimeMinutes += att.overtimeMinutes || 0;
       breakdown.additionalMinutes += att.additionalMinutes || 0;
@@ -263,11 +257,9 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
     }).sort({ effectiveDate: -1 });
 
     const hourlyWage = wageSettings?.hourlyWage || 10500;
-    const holidayMultiplier = wageSettings?.holidayMultiplier || 1.5;
 
     // 급여 계산
     const normalPay = Math.floor((breakdown.normalWorkMinutes / 60) * hourlyWage);
-    const holidayPay = Math.floor((breakdown.holidayWorkMinutes / 60) * hourlyWage * holidayMultiplier);
     const overtimePay = Math.floor((breakdown.overtimeMinutes / 60) * hourlyWage);
     const additionalPay = Math.floor((breakdown.additionalMinutes / 60) * hourlyWage);
     const incentivePay = Math.floor((breakdown.incentiveMinutes / 60) * hourlyWage);
@@ -287,8 +279,8 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
       totalMealCost += (att.mealCount + att.additionalMealCount) * mealPrice;
     }
 
-    const totalPay = normalPay + holidayPay + overtimePay + additionalPay + incentivePay + breakdown.annualLeaveAllowance;
-    const totalWorkMinutes = breakdown.normalWorkMinutes + breakdown.holidayWorkMinutes + breakdown.additionalMinutes + breakdown.incentiveMinutes;
+    const totalPay = normalPay + overtimePay + additionalPay + incentivePay + breakdown.annualLeaveAllowance;
+    const totalWorkMinutes = breakdown.normalWorkMinutes + breakdown.additionalMinutes + breakdown.incentiveMinutes;
 
     res.json({
       userId,
@@ -297,7 +289,6 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
       totalWorkMinutes,
       totalHours: (totalWorkMinutes / 60).toFixed(2),
       normalPay,
-      holidayPay,
       overtimePay,
       additionalPay,
       incentivePay,
@@ -337,7 +328,6 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
 
       const breakdown = {
         normalWorkMinutes: 0,
-        holidayWorkMinutes: 0,
         overtimeMinutes: 0,
         additionalMinutes: 0,
         incentiveMinutes: 0,
@@ -346,11 +336,8 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
       };
 
       for (const att of userAttendances) {
-        if (att.isHolidayPay) {
-          breakdown.holidayWorkMinutes += att.actualWorkMinutes;
-        } else {
-          breakdown.normalWorkMinutes += att.actualWorkMinutes;
-        }
+        // 모든 근무시간을 normalWorkMinutes로 통합
+        breakdown.normalWorkMinutes += att.actualWorkMinutes;
 
         breakdown.overtimeMinutes += att.overtimeMinutes || 0;
         breakdown.additionalMinutes += att.additionalMinutes || 0;
@@ -366,10 +353,8 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
       }).sort({ effectiveDate: -1 });
 
       const hourlyWage = wageSettings?.hourlyWage || 10500;
-      const holidayMultiplier = wageSettings?.holidayMultiplier || 1.5;
 
       const normalPay = Math.floor((breakdown.normalWorkMinutes / 60) * hourlyWage);
-      const holidayPay = Math.floor((breakdown.holidayWorkMinutes / 60) * hourlyWage * holidayMultiplier);
       const overtimePay = Math.floor((breakdown.overtimeMinutes / 60) * hourlyWage);
       const additionalPay = Math.floor((breakdown.additionalMinutes / 60) * hourlyWage);
       const incentivePay = Math.floor((breakdown.incentiveMinutes / 60) * hourlyWage);
@@ -385,7 +370,7 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
         totalMealCost += (att.mealCount + att.additionalMealCount) * mealPrice;
       }
 
-      const totalPay = normalPay + holidayPay + overtimePay + additionalPay + incentivePay + breakdown.annualLeaveAllowance;
+      const totalPay = normalPay + overtimePay + additionalPay + incentivePay + breakdown.annualLeaveAllowance;
 
       payrolls.push({
         userId,
@@ -393,7 +378,6 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
         userEmail: userAttendances[0].user.email,
         hourlyWage,
         normalPay,
-        holidayPay,
         overtimePay,
         additionalPay,
         incentivePay,

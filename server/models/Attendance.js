@@ -36,15 +36,15 @@ const attendanceSchema = new mongoose.Schema({
   // 오버타임 (분)
   overtimeMinutes: { type: Number, default: 0 },
 
+  // 오버타임 수동 적용 여부 (체크박스)
+  applyOvertime: { type: Boolean, default: false },
+
   // 근태 상태
   status: {
     type: String,
     enum: ["정상", "지각", "조퇴", "결근", "특근"],
     default: "정상"
   },
-
-  // 공휴일/특근 1.5배 적용 여부
-  isHolidayPay: { type: Boolean, default: false },
 
   // 식대 제공 횟수
   mealCount: { type: Number, default: 0 },
@@ -91,6 +91,7 @@ attendanceSchema.index({ user: 1, date: -1 });
 attendanceSchema.methods.calculateWorkTime = function() {
   if (!this.checkInTime || !this.checkOutTime) {
     this.actualWorkMinutes = 0;
+    this.overtimeMinutes = 0;
     return;
   }
 
@@ -100,12 +101,13 @@ attendanceSchema.methods.calculateWorkTime = function() {
   // 휴식시간 제외
   this.actualWorkMinutes = Math.max(0, totalMinutes - this.breakMinutes);
 
-  // 예정 근무시간 계산
-  if (this.scheduledCheckOut && this.scheduledCheckIn) {
-    const scheduledMinutes = Math.floor((this.scheduledCheckOut - this.scheduledCheckIn) / (1000 * 60)) - this.breakMinutes;
-
-    // 오버타임 계산
-    this.overtimeMinutes = Math.max(0, this.actualWorkMinutes - scheduledMinutes);
+  // 오버타임 계산: 하루 8시간(480분) 기준
+  // applyOvertime이 true일 때만 8시간 초과분을 오버타임으로 계산
+  if (this.applyOvertime) {
+    const standardWorkMinutes = 480; // 8시간
+    this.overtimeMinutes = Math.max(0, this.actualWorkMinutes - standardWorkMinutes);
+  } else {
+    this.overtimeMinutes = 0;
   }
 };
 

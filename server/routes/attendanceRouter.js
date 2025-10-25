@@ -84,7 +84,7 @@ router.get("/wage/:userId", verifyToken, async (req, res) => {
       .populate("setBy", "name email");
 
     if (!latestWage) {
-      return res.json({ hourlyWage: 10500, holidayMultiplier: 1.5 }); // 기본값
+      return res.json({ hourlyWage: 10500 }); // 기본값
     }
 
     res.json(latestWage);
@@ -97,13 +97,12 @@ router.get("/wage/:userId", verifyToken, async (req, res) => {
 // 시급 설정 (개별)
 router.post("/wage", verifyToken, verifyAdmin, async (req, res) => {
   try {
-    const { userId, hourlyWage, effectiveDate, holidayMultiplier, notes } = req.body;
+    const { userId, hourlyWage, effectiveDate, notes } = req.body;
 
     const wage = await WageSettings.create({
       user: userId,
       hourlyWage,
       effectiveDate: effectiveDate || new Date(),
-      holidayMultiplier: holidayMultiplier || 1.5,
       notes,
       setBy: req.user._id
     });
@@ -306,8 +305,7 @@ router.get("/holidays/check/:date", verifyToken, async (req, res) => {
 
     res.json({
       isHoliday: !!holiday,
-      holiday: holiday || null,
-      isWeekend: targetDate.getDay() === 0 || targetDate.getDay() === 6
+      holiday: holiday || null
     });
   } catch (error) {
     console.error("공휴일 확인 오류:", error);

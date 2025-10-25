@@ -33,8 +33,7 @@ router.post("/check-in", verifyToken, async (req, res) => {
 
     // 공휴일 확인
     const holiday = await Holiday.findOne({ date: dateOnly });
-    const isWeekend = dateOnly.getDay() === 0 || dateOnly.getDay() === 6;
-    const isHolidayOrWeekend = !!holiday || isWeekend;
+    const isHolidayOrWeekend = !!holiday;
 
     // 예정 출근시간 계산
     let scheduledStartTime = settings?.weekdayStartTime || "10:20";
@@ -269,7 +268,6 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
       checkOutTime,
       workType,
       breakMinutes,
-      isHolidayPay,
       additionalMealCount,
       annualLeaveAllowance,
       additionalMinutes,
@@ -290,7 +288,6 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
     if (checkOutTime) attendance.checkOutTime = new Date(checkOutTime);
     if (workType) attendance.workType = workType;
     if (breakMinutes !== undefined) attendance.breakMinutes = breakMinutes;
-    if (isHolidayPay !== undefined) attendance.isHolidayPay = isHolidayPay;
     if (additionalMealCount !== undefined) attendance.additionalMealCount = additionalMealCount;
     if (annualLeaveAllowance !== undefined) attendance.annualLeaveAllowance = annualLeaveAllowance;
     if (additionalMinutes !== undefined) attendance.additionalMinutes = additionalMinutes;
