@@ -13,6 +13,8 @@ export default function Sidebar() {
     { label: "🧾 승인 관리", path: "/erp/admin/approval" },
     { label: "🧑‍💼 권한 관리", path: "/erp/admin/roles" },
     { label: "📜 로그 이력", path: "/erp/admin/logs" },
+    { label: "💰 시재금 관리", path: "/erp/admin/daily-cash" },
+    { label: "🎫 권면/상품권", path: "/erp/admin/vouchers" },
   ];
 
   return (

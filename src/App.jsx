@@ -17,6 +17,8 @@ import AdminLogManager from "./pages/AdminLogManager";
 import AdminRoleManager from "./pages/AdminRoleManager";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
+import DailyCashManagement from "./pages/DailyCashManagement";
+import VoucherManagement from "./pages/VoucherManagement";
 
 import Sidebar from "./components/Sidebar";
 
@@ -64,6 +66,8 @@ export default function App() {
                         <Route path="approval" element={<AdminApproval />} />
                         <Route path="roles" element={<AdminRoleManager />} />
                         <Route path="logs" element={<AdminLogManager />} />
+                        <Route path="daily-cash" element={<DailyCashManagement />} />
+                        <Route path="vouchers" element={<VoucherManagement />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                       </Routes>
                     </div>
