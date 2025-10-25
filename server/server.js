@@ -5,6 +5,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const authRouter = require("./routes/authRouter");
 const adminRouter = require("./routes/adminRouter");
+const inventoryRouter = require("./routes/inventoryRouter");
+const reportRouter = require("./routes/reportRouter");
 
 dotenv.config();
 const app = express();
@@ -21,9 +23,11 @@ mongoose
 // ✅ 라우터 연결
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/inventory", inventoryRouter);
+app.use("/api/reports", reportRouter);
 
 app.get("/", (req, res) => {
-  res.send("ERP Server Running with Admin Approval System ✅");
+  res.send("ERP Server Running with Advanced Inventory Management System ✅");
 });
 
 const PORT = process.env.PORT || 3001;
