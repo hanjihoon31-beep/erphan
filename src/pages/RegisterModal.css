@@ -1,0 +1,167 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 400px;
+  padding: 40px 30px;
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #000; /* ✅ 글씨색 검은색 */
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.register-form label {
+  text-align: left;
+  font-weight: bold;
+  font-size: 14px;
+  color: #000; /* ✅ 라벨 글씨 검은색 */
+}
+
+.register-form input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  color: #000; /* ✅ 입력 텍스트 검은색 */
+  background-color: #fff;
+}
+
+.register-form input::placeholder {
+  color: #999;
+}
+
+.register-btn {
+  background-color: #f0f0f0;
+  color: #000; /* ✅ 버튼 글씨 검은색 */
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600; /* ✅ 로그인 버튼처럼 진하게 수정 */
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.register-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.back-btn {
+  background: none;
+  color: #000; /* ✅ 검은색 글씨 */
+  border: none;
+  font-size: 14px;
+  margin-top: 10px;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600; /* ✅ 약간 진하게 */
+}
+
+.back-btn:hover {
+  color: #555;
+}
+
+/* ✅ 회원가입 완료 메시지 애니메이션 */
+.register-success {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #000;
+  color: #fff;
+  padding: 16px 28px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  opacity: 0;
+  animation: fadeInOut 2s ease-in-out forwards;
+  z-index: 2000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* ✅ 중앙 메시지 fade in/out */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  85% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+}
+
+/* ✅ 기본 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

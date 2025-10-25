@@ -1,0 +1,196 @@
+/* ✅ 기본 레이아웃 */
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ✅ 로그인 박스 */
+.login-box {
+  width: 360px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  padding: 40px 30px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.4s ease-out;
+}
+
+/* ✅ 로고 */
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+/* ✅ 제목 */
+h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #000;
+}
+
+/* ✅ 부제목 */
+p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+/* ✅ 로그인 폼 */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-form label {
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: #000;
+}
+
+.login-form input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  color: #000;
+}
+
+/* ✅ 버튼 그룹 */
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.login-btn,
+.register-btn {
+  flex: 1;
+  margin: 3px;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-weight: 600;
+  color: #000;
+  transition: background-color 0.2s ease;
+}
+
+.login-btn:hover,
+.register-btn:hover {
+  background-color: #e0e0e0;
+}
+
+/* ✅ 비밀번호 찾기 버튼 */
+.findpw-btn {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #000;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.findpw-btn:hover {
+  color: #555;
+}
+
+/* ✅ 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ✅ 반응형 디자인 (태블릿 / 모바일) */
+@media (max-width: 768px) {
+  .login-box {
+    width: 80%;
+    padding: 30px 20px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .login-form input {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .login-btn,
+  .register-btn {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-box {
+    width: 90%;
+    padding: 25px 15px;
+  }
+
+  .logo {
+    width: 90px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  p {
+    font-size: 13px;
+  }
+
+  .login-form input {
+    font-size: 12px;
+  }
+
+  .login-btn,
+  .register-btn {
+    font-size: 12px;
+  }
+
+  .findpw-btn {
+    font-size: 12px;
+  }
+  /* 모달이 항상 가운데 뜨도록 강제(Portal 오버레이) */
+.modal-overlay {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.5); z-index: 9999;
+}
+
+/* 모달 열릴 때 바디 스크롤 잠금 */
+.modal-open { overflow: hidden; }
+
+}
+

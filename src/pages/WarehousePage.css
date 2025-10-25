@@ -1,0 +1,96 @@
+/* src/pages/WarehousePage.css */
+
+.warehouse-container {
+  padding: 40px;
+  text-align: center;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.warehouse-container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.warehouse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.warehouse-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.warehouse-card:hover {
+  transform: translateY(-4px);
+}
+
+.warehouse-card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #334155;
+}
+
+.item-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.item-preview:last-child {
+  border-bottom: none;
+}
+
+.item-preview img {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+}
+
+.item-info {
+  text-align: left;
+}
+
+.status {
+  font-size: 0.9rem;
+}
+
+.status-approved {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
+
+.empty {
+  color: #9ca3af;
+  font-style: italic;
+}
