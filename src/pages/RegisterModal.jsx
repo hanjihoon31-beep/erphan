@@ -6,7 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import naruatoLogo from "../assets/naruato-logo.jpg";
 
 const RegisterModal = ({ onClose }) => {
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({
+    employeeId: "",
+    name: "",
+    email: "",
+    password: ""
+  });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -27,18 +32,21 @@ const RegisterModal = ({ onClose }) => {
     setMessage("");
 
     try {
-      // 역할은 항상 근무자
-      const payload = { ...formData, role: "근무자" };
+      // 역할은 항상 employee (근무자)
+      const payload = { ...formData, role: "employee" };
       const res = await axios.post("http://localhost:3001/api/auth/register", payload);
 
       if (res.data?.success) {
         setMessage("✅ 가입 요청이 완료되었습니다. 최고관리자 승인 후 사용 가능합니다.");
+        // 3초 후 모달 닫기
+        setTimeout(() => onClose(), 3000);
       } else {
         setMessage(res.data?.message || "❌ 가입에 실패했습니다.");
       }
     } catch (err) {
       console.error("회원가입 오류:", err);
-      setMessage("서버 연결 오류가 발생했습니다.");
+      const errorMsg = err.response?.data?.message || "서버 연결 오류가 발생했습니다.";
+      setMessage(`❌ ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -78,6 +86,15 @@ const RegisterModal = ({ onClose }) => {
 
           {/* 폼 */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <input
+              type="text"
+              name="employeeId"
+              placeholder="사번"
+              value={formData.employeeId}
+              onChange={handleChange}
+              className="border rounded p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+              required
+            />
             <input
               type="text"
               name="name"

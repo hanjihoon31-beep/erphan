@@ -9,58 +9,80 @@ const router = express.Router();
 // ✅ 회원가입 (승인 대기)
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "이미 등록된 이메일입니다." });
+    const { employeeId, name, email, password, role } = req.body;
+
+    // 중복 체크
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      return res.status(400).json({ success: false, message: "이미 등록된 이메일입니다." });
+    }
+
+    const existingUserById = await User.findOne({ employeeId });
+    if (existingUserById) {
+      return res.status(400).json({ success: false, message: "이미 등록된 사번입니다." });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
+      employeeId,
       name,
       email,
       password: hashedPassword,
-      role,
-      status: "pending",
+      role: role || "employee",
+      isApproved: false, // 승인 대기
+      isActive: true
     });
 
-    res.status(201).json({ message: "관리자 승인 대기 중입니다." });
+    res.status(201).json({ success: true, message: "관리자 승인 대기 중입니다." });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "서버 오류" });
+    console.error("회원가입 오류:", error);
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
   }
 });
 
-// ✅ 로그인 (승인된 계정만)
+// ✅ 로그인 (사번으로 로그인, 승인된 계정만)
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ message: "존재하지 않는 계정입니다." });
+    const { employeeId, password } = req.body;
 
-    if (user.status === "pending")
-      return res.status(403).json({ message: "관리자 승인 대기 중입니다." });
+    const user = await User.findOne({ employeeId });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "존재하지 않는 사번입니다." });
+    }
 
-    if (user.status === "rejected")
-      return res.status(403).json({ message: "승인이 거절된 계정입니다." });
+    // 승인 확인
+    if (!user.isApproved) {
+      return res.status(403).json({ success: false, message: "관리자 승인 대기 중입니다." });
+    }
 
-    if (user.status === "inactive")
-      return res.status(403).json({ message: "비활성화된 계정입니다. 관리자에게 문의하세요." });
+    // 계정 활성화 확인
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: "비활성화된 계정입니다. 관리자에게 문의하세요." });
+    }
 
+    // 비밀번호 확인
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "비밀번호가 일치하지 않습니다." });
+    }
 
+    // JWT 토큰 생성
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, employeeId: user.employeeId, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
 
-    res.json({ token, role: user.role, name: user.name });
+    res.json({
+      success: true,
+      token,
+      role: user.role,
+      name: user.name,
+      employeeId: user.employeeId
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "로그인 중 오류 발생" });
+    console.error("로그인 오류:", error);
+    res.status(500).json({ success: false, message: "로그인 중 오류가 발생했습니다." });
   }
 });
 
