@@ -29,14 +29,23 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 // ✅ MongoDB 연결
+console.log("🔍 MongoDB 연결 시도 중...");
+console.log("📍 URI:", process.env.MONGO_URI.replace(/:[^:]*@/, ':****@')); // 비밀번호 숨김
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("✅ MongoDB Connected");
+    console.log("✅ MongoDB 연결 성공!");
+    console.log("📦 데이터베이스:", mongoose.connection.name);
     // 일일 재고 자동 생성 스케줄러 시작
     initDailyInventoryScheduler();
   })
-  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+  .catch((err) => {
+    console.error("❌ MongoDB 연결 실패!");
+    console.error("에러 이름:", err.name);
+    console.error("에러 메시지:", err.message);
+    if (err.reason) console.error("상세 원인:", err.reason);
+  });
 
 // ✅ 라우터 연결
 app.use("/api/auth", authRouter);
