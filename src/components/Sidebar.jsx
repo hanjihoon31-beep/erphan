@@ -15,6 +15,14 @@ export default function Sidebar() {
     { label: "📜 로그 이력", path: "/erp/admin/logs" },
     { label: "💰 시재금 관리", path: "/erp/admin/daily-cash" },
     { label: "🎫 권면/상품권", path: "/erp/admin/vouchers" },
+    { label: "📝 일일재고 입력", path: "/erp/admin/daily-inventory" },
+    { label: "📋 재고 템플릿", path: "/erp/admin/daily-inventory-template" },
+    { label: "⏰ 출퇴근 체크", path: "/erp/admin/attendance-check" },
+    { label: "📝 근태 수정 요청", path: "/erp/admin/attendance-modification" },
+    { label: "⚙️ 근태 설정", path: "/erp/admin/attendance-settings" },
+    { label: "💸 급여 관리", path: "/erp/admin/payroll" },
+    { label: "🔧 장비 관리", path: "/erp/admin/equipment" },
+    { label: "🗑️ 폐기 관리", path: "/erp/admin/disposal" },
   ];
 
   return (

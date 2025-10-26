@@ -19,6 +19,14 @@ import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import DailyCashManagement from "./pages/DailyCashManagement";
 import VoucherManagement from "./pages/VoucherManagement";
+import DailyInventoryForm from "./pages/DailyInventoryForm";
+import DailyInventoryTemplate from "./pages/DailyInventoryTemplate";
+import AttendanceCheck from "./pages/AttendanceCheck";
+import AttendanceModification from "./pages/AttendanceModification";
+import AttendanceSettings from "./pages/AttendanceSettings";
+import PayrollManagement from "./pages/PayrollManagement";
+import EquipmentManagement from "./pages/EquipmentManagement";
+import ProductDisposalManagement from "./pages/ProductDisposalManagement";
 
 import Sidebar from "./components/Sidebar";
 
@@ -68,6 +76,14 @@ export default function App() {
                         <Route path="logs" element={<AdminLogManager />} />
                         <Route path="daily-cash" element={<DailyCashManagement />} />
                         <Route path="vouchers" element={<VoucherManagement />} />
+                        <Route path="daily-inventory" element={<DailyInventoryForm />} />
+                        <Route path="daily-inventory-template" element={<DailyInventoryTemplate />} />
+                        <Route path="attendance-check" element={<AttendanceCheck />} />
+                        <Route path="attendance-modification" element={<AttendanceModification />} />
+                        <Route path="attendance-settings" element={<AttendanceSettings />} />
+                        <Route path="payroll" element={<PayrollManagement />} />
+                        <Route path="equipment" element={<EquipmentManagement />} />
+                        <Route path="disposal" element={<ProductDisposalManagement />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                       </Routes>
                     </div>
