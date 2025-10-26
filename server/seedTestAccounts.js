@@ -2,7 +2,7 @@
 // 테스트 계정을 데이터베이스에 생성하는 스크립트
 
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const User = require("./models/User");
 
