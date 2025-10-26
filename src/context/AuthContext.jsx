@@ -10,10 +10,10 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = async (email, password) => {
+  const login = async (employeeId, password) => {
     try {
       const res = await axios.post("http://localhost:3001/api/auth/login", {
-        email,
+        employeeId,
         password,
       });
 
@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         token: res.data.token,
         role: res.data.role,
         name: res.data.name,
+        employeeId: res.data.employeeId,
       };
 
       localStorage.setItem("user", JSON.stringify(loggedInUser));

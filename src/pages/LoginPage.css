@@ -183,14 +183,21 @@ p {
   .findpw-btn {
     font-size: 12px;
   }
-  /* 모달이 항상 가운데 뜨도록 강제(Portal 오버레이) */
+}
+
+/* 모달이 항상 가운데 뜨도록 강제(Portal 오버레이) */
 .modal-overlay {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,.5); z-index: 9999;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.5);
+  z-index: 9999;
 }
 
 /* 모달 열릴 때 바디 스크롤 잠금 */
-.modal-open { overflow: hidden; }
-
+.modal-open {
+  overflow: hidden;
 }
 
