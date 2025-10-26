@@ -28,7 +28,7 @@ const LoginPage = () => {
     try {
       const result = await login(formData.employeeId, formData.password);
       if (result?.success) {
-        navigate("/erphan");
+        navigate("/erp");
       } else {
         setMessage(result?.message || "❌ 로그인에 실패했습니다.");
       }

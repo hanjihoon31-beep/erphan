@@ -107,6 +107,20 @@ h2 {
   color: #555;
 }
 
+.register-success-msg {
+  color: #27ae60;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.register-error-msg {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
 /* ✅ 회원가입 완료 메시지 애니메이션 */
 .register-success {
   position: fixed;
