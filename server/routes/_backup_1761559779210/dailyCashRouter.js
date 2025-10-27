@@ -1,10 +1,10 @@
 // server/routes/dailyCashRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import DailyCash from "../models/DailyCash.js"';
-import CashRequest from "../models/CashRequest.js"';
-import Store from "../models/Store.js"';
-import GiftCardType from "../models/GiftCardType.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import DailyCash from '../models/DailyCash';
+import CashRequest from '../models/CashRequest';
+import Store from '../models/Store';
+import GiftCardType from '../models/GiftCardType';
 
 const router = express.Router();
 

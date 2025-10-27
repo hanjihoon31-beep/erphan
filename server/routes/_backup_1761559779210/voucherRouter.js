@@ -1,7 +1,7 @@
 // server/routes/voucherRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import VoucherType from "../models/VoucherType.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import VoucherType from '../models/VoucherType';
 
 const router = express.Router();
 

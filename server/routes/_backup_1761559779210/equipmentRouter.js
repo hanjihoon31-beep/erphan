@@ -1,8 +1,8 @@
 // server/routes/equipmentRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import Equipment from "../models/Equipment.js"';
-import EquipmentHistory from "../models/EquipmentHistory.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import Equipment from '../models/Equipment';
+import EquipmentHistory from '../models/EquipmentHistory';
 import multer from 'multer';
 import path from 'path';
 

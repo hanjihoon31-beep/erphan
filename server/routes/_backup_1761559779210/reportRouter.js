@@ -1,8 +1,8 @@
 // server/routes/reportRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import Inventory from "../models/Inventory.js"';
-import MinimumStock from "../models/MinimumStock.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import Inventory from '../models/Inventory';
+import MinimumStock from '../models/MinimumStock';
 
 const router = express.Router();
 

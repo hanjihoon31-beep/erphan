@@ -1,10 +1,10 @@
 // server/routes/attendanceCheckRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import Attendance from "../models/Attendance.js"';
-import AttendanceModificationRequest from "../models/AttendanceModificationRequest.js"';
-import WorkScheduleSettings from "../models/WorkScheduleSettings.js"';
-import Holiday from "../models/Holiday.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import Attendance from '../models/Attendance';
+import AttendanceModificationRequest from '../models/AttendanceModificationRequest';
+import WorkScheduleSettings from '../models/WorkScheduleSettings';
+import Holiday from '../models/Holiday';
 
 const router = express.Router();
 

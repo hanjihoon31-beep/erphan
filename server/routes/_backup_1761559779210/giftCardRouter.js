@@ -1,7 +1,7 @@
 // server/routes/giftCardRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import GiftCardType from "../models/GiftCardType.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import GiftCardType from '../models/GiftCardType';
 
 const router = express.Router();
 

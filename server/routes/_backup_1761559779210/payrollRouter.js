@@ -1,10 +1,10 @@
 // server/routes/payrollRouter.js
 import express from 'express';
-import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
-import Attendance from "../models/Attendance.js"';
-import AttendanceModificationRequest from "../models/AttendanceModificationRequest.js"';
-import WageSettings from "../models/WageSettings.js"';
-import MealCostHistory from "../models/MealCostHistory.js"';
+const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import Attendance from '../models/Attendance';
+import AttendanceModificationRequest from '../models/AttendanceModificationRequest';
+import WageSettings from '../models/WageSettings';
+import MealCostHistory from '../models/MealCostHistory';
 
 const router = express.Router();
 
