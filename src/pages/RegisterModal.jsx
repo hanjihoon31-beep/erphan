@@ -36,7 +36,7 @@ const RegisterModal = ({ onClose }) => {
       const res = await axios.post("http://localhost:3001/api/auth/register", payload);
 
       if (res.data?.success) {
-        setMessage("✅ 가입 요청이 완료되었습니다. 최고관리자 승인 후 사용 가능합니다.");
+        setMessage("✅ 가입 요청이 완료되었습니다. 관리자 승인 후 사용 가능합니다.");
         // 3초 후 모달 닫기
         setTimeout(() => onClose(), 3000);
       } else {
@@ -60,7 +60,7 @@ const RegisterModal = ({ onClose }) => {
 
         <img src={naruatoLogo} alt="Naruato Logo" className="logo" />
         <h2>회원가입</h2>
-        <p>가입 후 최고관리자의 승인 시 계정이 활성화됩니다.</p>
+        <p>가입 후 관리자의 승인 시 계정이 활성화됩니다.</p>
 
         <form onSubmit={handleSubmit} className="register-form">
           <label>사번</label>

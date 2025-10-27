@@ -59,27 +59,99 @@ const WarehouseOutbound = () => {
   };
 
   return (
-    <motion.div className="p-6 max-w-xl mx-auto bg-white rounded-2xl shadow-md mt-10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-      <h2 className="text-2xl font-bold mb-6 text-center">🚚 출고 요청</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <select value={warehouse} onChange={(e) => setWarehouse(e.target.value)} className="w-full border rounded-lg p-2">
-          <option>외부창고(사무실)</option>
-          <option>내부창고(암담)</option>
-          <option>내부창고(버거)</option>
-          <option>냉동창고</option>
-        </select>
+    <motion.div
+      className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-10 text-slate-100"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#f59e0b_0%,_transparent_55%)] opacity-60" />
+      <div className="pointer-events-none absolute -left-32 top-1/3 h-96 w-96 rounded-full bg-amber-500/20 blur-3xl" />
 
-        <input type="text" placeholder="품목명" value={itemName} onChange={(e) => setItemName(e.target.value)} className="w-full border rounded-lg p-2" />
-        <input type="number" placeholder="출고 수량" value={quantity} onChange={(e) => setQuantity(e.target.value)} className="w-full border rounded-lg p-2" />
-        <input type="text" placeholder="출고 사유" value={reason} onChange={(e) => setReason(e.target.value)} className="w-full border rounded-lg p-2" />
+      <div className="relative z-10 mx-auto w-full max-w-2xl">
+        <div className="rounded-3xl border border-white/10 bg-white/10 p-8 backdrop-blur">
+          <div className="mb-6 text-center">
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-300">Outbound</p>
+            <h2 className="mt-3 text-3xl font-semibold text-white">출고 요청</h2>
+            <p className="mt-2 text-sm text-slate-300">
+              필요한 물품을 외부로 반출할 때 사용하세요. 요청은 승인 프로세스를 거쳐 기록됩니다.
+            </p>
+          </div>
 
-        <input type="file" accept="image/*" onChange={handleImageChange} />
-        {preview && <img src={preview} alt="미리보기" className="mt-3 w-full h-48 object-cover rounded-xl border" />}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400">
+              창고 선택
+              <select
+                value={warehouse}
+                onChange={(e) => setWarehouse(e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
+              >
+                <option>외부창고(사무실)</option>
+                <option>내부창고(암담)</option>
+                <option>내부창고(버거)</option>
+                <option>냉동창고</option>
+              </select>
+            </label>
+             <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                품목명
+                <input
+                  type="text"
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
+                  placeholder="예: 포장 박스"
+                />
+              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400">
+                출고 수량
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
+                  placeholder="예: 10"
+                />
+              </label>
+            </div>
 
-        <button type="submit" disabled={loading} className={`w-full py-3 mt-4 rounded-lg text-white font-bold transition ${loading ? "bg-gray-400" : "bg-yellow-500 hover:bg-yellow-600"}`}>
-          {loading ? "등록 중..." : "출고 요청하기"}
-        </button>
-      </form>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400">
+              출고 사유
+              <input
+                type="text"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 focus:border-amber-400 focus:outline-none"
+                placeholder="출고 목적"
+              />
+            </label>
+
+            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-400">
+              사진 첨부 (선택)
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="mt-2 w-full text-sm text-slate-200 file:mr-4 file:rounded-full file:border-0 file:bg-amber-500/80 file:px-4 file:py-2 file:text-xs file:font-semibold hover:file:bg-amber-500"
+              />
+            </label>
+            {preview && (
+              <img src={preview} alt="미리보기" className="h-48 w-full rounded-2xl border border-white/10 object-cover" />
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full rounded-2xl px-4 py-3 text-sm font-semibold text-white transition ${
+                loading
+                  ? "bg-slate-700"
+                  : "bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 shadow-lg shadow-amber-500/30 hover:translate-y-[-1px]"
+              }`}
+            >
+              {loading ? "등록 중..." : "출고 요청하기"}
+            </button>
+          </form>
+        </div>
+      </div>
     </motion.div>
   );
 };

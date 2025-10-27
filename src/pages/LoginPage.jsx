@@ -47,7 +47,7 @@ const LoginPage = () => {
         <div className="login-box">
           <img src={naruatoLogo} alt="Naruato Logo" className="logo" />
           <h1>환영합니다</h1>
-          <p>나루토 ERP 시스템</p>
+          <p>NARUATO ERP SYSTEM</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <label>사번</label>

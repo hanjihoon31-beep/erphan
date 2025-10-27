@@ -106,130 +106,166 @@ const AdminApproval = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-10">로딩 중...</p>;
+   if (loading)
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-300">
+        데이터를 불러오는 중입니다...
+      </div>
+    );
 
   return (
     <motion.div
-      className="p-8 bg-gray-50 min-h-screen"
+      className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-10 text-slate-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      {/* 탭 */}
-      <div className="flex justify-center gap-4 mb-6">
-        <button
-          className={`px-6 py-2 rounded-lg font-semibold ${
-            tab === "users" ? "bg-blue-600 text-white" : "bg-white border"
-          }`}
-          onClick={() => setTab("users")}
-        >
-          👤 회원 승인
-        </button>
-        <button
-          className={`px-6 py-2 rounded-lg font-semibold ${
-            tab === "inventory" ? "bg-blue-600 text-white" : "bg-white border"
-          }`}
-          onClick={() => setTab("inventory")}
-        >
-          📦 재고 승인
-        </button>
-      </div>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#312e81_0%,_transparent_55%)] opacity-70" />
+      <div className="pointer-events-none absolute -right-28 top-1/4 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
 
-      {/* 회원 승인 */}
-      {tab === "users" && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">👤 승인 대기 / 권한 관리</h2>
-          {userRequests.length === 0 ? (
-            <p className="text-gray-500 text-center">
-              승인 대기 또는 등록된 직원이 없습니다.
+       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-8">
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Approval Center</p>
+            <h1 className="mt-2 text-3xl font-semibold text-white">승인 허브</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-300">
+              회원과 재고 요청을 빠르게 분류하고 처리할 수 있도록 인터페이스를 재구성했습니다. 기존 승인 로직은 유지하면서 더 선명한 우선순위를 제공합니다.
             </p>
-          ) : (
-            userRequests.map((u) => (
-              <div
-                key={u._id}
-                className="bg-white p-4 rounded-xl shadow-sm mb-3 border"
-              >
-                <p className="font-semibold">{u.name}</p>
-                <p className="text-sm text-gray-500">{u.email}</p>
-                <p className="text-sm text-gray-400 mt-1">
-                  현재 권한: <strong>{u.role}</strong>
-                </p>
+          </div>
 
-                {user?.role === "superadmin" && (
-                  <div className="mt-3 flex items-center gap-2">
-                    <label className="text-sm text-gray-600">권한 변경:</label>
-                    <select
-                      defaultValue={u.role}
-                      onChange={(e) => handleRoleChange(u._id, e.target.value)}
-                      className="border rounded p-1 text-sm"
-                    >
-                      <option value="근무자">근무자</option>
-                      <option value="중간관리자">중간관리자</option>
-                      <option value="superadmin">최고관리자</option>
-                    </select>
+          <div className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-slate-300 backdrop-blur">
+            총 {userRequests.length + inventoryRequests.length}건의 요청이 대기 중
+          </div>
+        </header>
+
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {["users", "inventory"].map((key) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`group relative overflow-hidden rounded-full px-6 py-2 text-sm font-semibold transition ${
+                tab === key ? "text-white" : "text-slate-300"
+              }`}
+            >
+              <span
+                className={`absolute inset-0 rounded-full border border-white/10 bg-white/5 transition-all duration-200 ${
+                  tab === key ? "border-white/20 bg-indigo-500/20" : "hover:border-white/15 hover:bg-white/10"
+                }`}
+              />
+              <span className="relative flex items-center gap-2">
+                {key === "users" ? "👤 회원 승인" : "📦 재고 승인"}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {tab === "users" && (
+          <section className="space-y-4">
+            <div className="rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+              <h2 className="text-lg font-semibold text-white">회원 승인 / 권한 관리</h2>
+              <p className="mt-1 text-xs text-slate-400">신규 가입자와 역할 변경 요청을 한곳에서 처리하세요.</p>
+            </div>
+            {userRequests.length === 0 ? (
+              <p className="rounded-3xl border border-dashed border-white/10 bg-white/5 py-12 text-center text-sm text-slate-400">
+                승인 대기 중인 직원이 없습니다.
+              </p>
+            ) : (
+              userRequests.map((u) => (
+                <div
+                  key={u._id}
+                  className="rounded-3xl border border-white/5 bg-white/5 p-5 text-sm text-slate-200 backdrop-blur"
+                >
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div>
+                      <p className="text-base font-semibold text-white">{u.name}</p>
+                      <p className="text-xs text-slate-300">{u.email}</p>
+                      <p className="mt-2 text-xs text-slate-400">
+                        현재 권한: <span className="font-semibold text-indigo-200">{u.role}</span>
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-3">
+                      {user?.role === "superadmin" && (
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <span>권한 변경</span>
+                          <select
+                            defaultValue={u.role}
+                            onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                            className="rounded-xl border border-white/10 bg-slate-900/60 px-3 py-1 focus:border-indigo-400 focus:outline-none"
+                          >
+                            <option value="근무자">근무자</option>
+                            <option value="중간관리자">중간관리자</option>
+                            <option value="superadmin">최고관리자</option>
+                          </select>
+                        </div>
+                      )}
+
+                      {u.status === "대기" && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleUserApprove(u._id)}
+                            className="rounded-xl bg-emerald-500/80 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500"
+                          >
+                            승인
+                          </button>
+                          <button
+                            onClick={() => handleUserReject(u._id)}
+                            className="rounded-xl bg-rose-500/80 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-500"
+                          >
+                            거부
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+                </div>
+              ))
+            )}
+          </section>
+        )}
+        {tab === "inventory" && (
+          <section className="space-y-4">
+            <div className="rounded-3xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+              <h2 className="text-lg font-semibold text-white">재고 승인</h2>
+              <p className="mt-1 text-xs text-slate-400">입출고·폐기·반납 요청을 확인하고 처리하세요.</p>
+            </div>
+            {inventoryRequests.length === 0 ? (
+              <p className="rounded-3xl border border-dashed border-white/10 bg-white/5 py-12 text-center text-sm text-slate-400">
+                승인 대기 중인 재고 요청이 없습니다.
+              </p>
+            ) : (
+              inventoryRequests.map((req) => (
+                <div
+                  key={req._id}
+                  className="rounded-3xl border border-white/5 bg-white/5 p-5 text-sm text-slate-200 backdrop-blur"
+                >
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-base font-semibold text-white">[{req.type}] {req.name}</p>
+                      <p className="text-xs text-slate-300">창고 {req.warehouse}</p>
+                      <p className="text-xs text-slate-400">수량 {req.quantity}개</p>
+                    </div>
+                    <div className="flex gap-2">
 
-                <div className="flex justify-end gap-2 mt-3">
-                  {u.status === "대기" && (
-                    <>
                       <button
-                        onClick={() => handleUserApprove(u._id)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg"
+                        onClick={() => handleInventoryApprove(req._id)}
+                        className="rounded-xl bg-emerald-500/80 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500"
                       >
                         승인
                       </button>
                       <button
-                        onClick={() => handleUserReject(u._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg"
+                        onClick={() => handleInventoryReject(req._id)}
+                        className="rounded-xl bg-rose-500/80 px-4 py-2 text-xs font-semibold text-white transition hover:bg-rose-500"
                       >
                         거부
                       </button>
-                    </>
-                  )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* 재고 승인 */}
-      {tab === "inventory" && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">📦 승인 대기 중인 재고</h2>
-          {inventoryRequests.length === 0 ? (
-            <p className="text-gray-500 text-center">승인 대기 재고 없음</p>
-          ) : (
-            inventoryRequests.map((req) => (
-              <div
-                key={req._id}
-                className="bg-white p-4 rounded-xl shadow-sm mb-3 border"
-              >
-                <p className="font-semibold">
-                  [{req.type}] {req.name}
-                </p>
-                <p className="text-sm text-gray-500">
-                  창고: {req.warehouse} / 수량: {req.quantity}개
-                </p>
-                <div className="flex justify-end gap-2 mt-3">
-                  <button
-                    onClick={() => handleInventoryApprove(req._id)}
-                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg"
-                  >
-                    승인
-                  </button>
-                  <button
-                    onClick={() => handleInventoryReject(req._id)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg"
-                  >
-                    거부
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
+              ))
+            )}
+          </section>
+        )}
+      </div>
     </motion.div>
   );
 };

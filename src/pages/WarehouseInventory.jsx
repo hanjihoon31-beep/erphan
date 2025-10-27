@@ -185,151 +185,203 @@ const WarehouseInventory = () => {
   }, [inventory, filterType, warehouseFilter, search, startDate, endDate, onlyPending]);
 
   return (
-    <motion.div className="p-6 bg-gray-50 min-h-screen" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <h2 className="text-3xl font-bold mb-6 text-center">📊 통합 재고 대시보드</h2>
+    <motion.div
+      className="relative min-h-screen overflow-hidden bg-slate-950 px-6 py-10 text-slate-100"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_#3730a3_0%,_transparent_55%)] opacity-70" />
+      <div className="pointer-events-none absolute -left-32 top-1/3 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
 
-      {/* 필터 영역 */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
-        {/* 날짜 선택 */}
-        <div className="flex gap-2 items-center">
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="border p-2 rounded-lg" />
-          <span>~</span>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="border p-2 rounded-lg" />
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-8">
+        <header className="text-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Inventory Intelligence</p>
+          <h2 className="mt-3 text-3xl font-semibold text-white">통합 재고 대시보드</h2>
+          <p className="mt-2 text-sm text-slate-300">
+            창고별 이동 현황과 승인 상태를 최신 UI로 정리했습니다. 필요한 자료는 즉시 내보낼 수 있습니다.
+          </p>
+        </header>
+
+        <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-slate-100 focus:border-indigo-400 focus:outline-none"
+              />
+              <span className="text-xs text-slate-400">~</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-slate-100 focus:border-indigo-400 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-slate-100 focus:border-indigo-400 focus:outline-none"
+              >
+                <option>전체</option>
+                <option>입고</option>
+                <option>출고</option>
+                <option>폐기</option>
+                <option>반납</option>
+              </select>
+              <select
+                value={warehouseFilter}
+                onChange={(e) => setWarehouseFilter(e.target.value)}
+                className="rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-slate-100 focus:border-indigo-400 focus:outline-none"
+              >
+                <option>전체</option>
+                <option>외부창고(사무실)</option>
+                <option>내부창고(암담)</option>
+                <option>내부창고(버거)</option>
+                <option>냉동창고</option>
+              </select>
+              <label className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200">
+                <input
+                  type="checkbox"
+                  className="accent-indigo-500"
+                  checked={onlyPending}
+                  onChange={() => setOnlyPending(!onlyPending)}
+                />
+                승인 대기만 보기
+              </label>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <input
+                type="text"
+                placeholder="🔍 품목명 또는 창고 검색"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full max-w-xs rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-slate-100 focus:border-indigo-400 focus:outline-none"
+              />
+              <button
+                onClick={exportToCSV}
+                className="rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:translate-y-[-1px]"
+              >
+                ⬇ CSV
+              </button>
+              <button
+                onClick={exportToPDF}
+                className="rounded-2xl bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-rose-500/30 transition hover:translate-y-[-1px]"
+              >
+                📄 PDF
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* 유형 및 창고 필터 */}
-        <div className="flex gap-2">
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="border p-2 rounded-lg">
-            <option>전체</option>
-            <option>입고</option>
-            <option>출고</option>
-            <option>폐기</option>
-            <option>반납</option>
-          </select>
-          <select value={warehouseFilter} onChange={(e) => setWarehouseFilter(e.target.value)} className="border p-2 rounded-lg">
-            <option>전체</option>
-            <option>외부창고(사무실)</option>
-            <option>내부창고(암담)</option>
-            <option>내부창고(버거)</option>
-            <option>냉동창고</option>
-          </select>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={onlyPending} onChange={() => setOnlyPending(!onlyPending)} />
-            승인 대기만 보기
-          </label>
+        <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur">
+          <h3 className="text-lg font-semibold text-white">📈 입·출·폐기·반납 현황</h3>
+          <p className="mt-1 text-xs text-slate-400">재고 이동량을 시각화하여 변화를 빠르게 확인하세요.</p>
+          <div className="mt-6 h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={[
+                  { name: "입고", 수량: stats.inbound },
+                  { name: "출고", 수량: stats.outbound },
+                  { name: "폐기", 수량: stats.dispose },
+                  { name: "반납", 수량: stats.returned },
+                ]}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="name" stroke="#cbd5f5" />
+                <YAxis stroke="#cbd5f5" />
+                <Tooltip contentStyle={{ backgroundColor: "#0f172a", borderRadius: 12, border: "1px solid rgba(148,163,184,0.25)", color: "#e2e8f0" }} />
+                <Legend wrapperStyle={{ color: "#cbd5f5" }} />
+                <Bar dataKey="수량" fill="url(#inventoryBar)" radius={[10, 10, 0, 0]} />
+                <defs>
+                  <linearGradient id="inventoryBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#22d3ee" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        {/* 검색 & 내보내기 */}
-        <div className="flex gap-3 items-center">
-          <input
-            type="text"
-            placeholder="🔍 품목명 또는 창고 검색"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border p-2 rounded-lg w-64"
-          />
-          <button onClick={exportToCSV} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-            ⬇ CSV
-          </button>
-          <button onClick={exportToPDF} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
-            📄 PDF
-          </button>
-        </div>
-      </div>
-
-      {/* 그래프 */}
-      <div className="bg-white rounded-2xl shadow mb-8 p-6">
-        <h3 className="text-lg font-semibold mb-3">📈 입·출·폐기·반납 현황</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart
-            data={[
-              { name: "입고", 수량: stats.inbound },
-              { name: "출고", 수량: stats.outbound },
-              { name: "폐기", 수량: stats.dispose },
-              { name: "반납", 수량: stats.returned },
-            ]}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="수량" fill="#3498db" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 테이블 */}
-      <div className="overflow-x-auto bg-white rounded-2xl shadow relative">
-        <table className="w-full text-sm text-gray-700">
-          <thead className="bg-gray-100">
-            <tr className="text-left">
-              <th className="p-3">유형</th>
-              <th className="p-3">창고</th>
-              <th className="p-3">품목명</th>
-              <th className="p-3">수량</th>
-              <th className="p-3">사유</th>
-              <th className="p-3">날짜</th>
-              <th className="p-3">상태</th>
-              <th className="p-3 text-right">관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredInventory.length > 0 ? (
-              filteredInventory.map((item) => (
-                <tr key={item._id || item.id} className="border-b hover:bg-gray-50 cursor-pointer">
-                  <td className="p-3 font-bold">{item.type}</td>
-                  <td className="p-3">{item.warehouse}</td>
-                  <td className="p-3">{item.name}</td>
-                  <td className="p-3">{item.quantity}</td>
-                  <td className="p-3">{item.reason || "-"}</td>
-                  <td className="p-3">{new Date(item.date).toLocaleString("ko-KR")}</td>
-                  <td
-                    className={`p-3 font-semibold ${
-                      item.status === "승인"
-                        ? "text-green-600"
-                        : item.status === "반려"
-                        ? "text-red-500"
-                        : "text-gray-500"
-                    }`}
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/10 backdrop-blur">
+          <table className="w-full text-sm text-slate-200">
+            <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-400">
+              <tr className="text-left">
+                <th className="px-4 py-3">유형</th>
+                <th className="px-4 py-3">창고</th>
+                <th className="px-4 py-3">품목명</th>
+                <th className="px-4 py-3">수량</th>
+                <th className="px-4 py-3">사유</th>
+                <th className="px-4 py-3">날짜</th>
+                <th className="px-4 py-3">상태</th>
+                <th className="px-4 py-3 text-right">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredInventory.length > 0 ? (
+                filteredInventory.map((item) => (
+                  <tr
+                    key={item._id || item.id}
+                    className="border-t border-white/5 transition hover:bg-white/5"
                   >
-                    {item.status || "대기"}
-                  </td>
-                  <td className="p-3 text-right space-x-2">
-                    {item.status === "대기" && (
-                      <>
-                        <button
-                          onClick={() => handleApprove(item._id || item.id)}
-                          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                        >
-                          승인
-                        </button>
-                        <button
-                          onClick={() => handleReject(item._id || item.id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                        >
-                          반려
-                        </button>
-                      </>
-                    )}
-                    <button
-                      onClick={() => handleDelete(item._id || item.id)}
-                      className="text-gray-500 hover:text-red-500 ml-2"
+                    <td className="px-4 py-3 font-semibold text-white">{item.type}</td>
+                    <td className="px-4 py-3 text-slate-200">{item.warehouse}</td>
+                    <td className="px-4 py-3 text-slate-200">{item.name}</td>
+                    <td className="px-4 py-3 text-slate-200">{item.quantity}</td>
+                    <td className="px-4 py-3 text-slate-400">{item.reason || "-"}</td>
+                    <td className="px-4 py-3 text-slate-400">{new Date(item.date).toLocaleString("ko-KR")}</td>
+                    <td
+                      className={`px-4 py-3 font-semibold ${
+                        item.status === "승인"
+                          ? "text-emerald-300"
+                          : item.status === "반려"
+                          ? "text-rose-300"
+                          : "text-amber-300"
+                      }`}
                     >
-                      삭제
-                    </button>
+                      {item.status || "대기"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {item.status === "대기" && (
+                        <div className="inline-flex items-center gap-2">
+                          <button
+                            onClick={() => handleApprove(item._id || item.id)}
+                            className="rounded-xl bg-emerald-500/80 px-3 py-1 text-xs font-semibold text-white transition hover:bg-emerald-500"
+                          >
+                            승인
+                          </button>
+                          <button
+                            onClick={() => handleReject(item._id || item.id)}
+                            className="rounded-xl bg-rose-500/80 px-3 py-1 text-xs font-semibold text-white transition hover:bg-rose-500"
+                          >
+                            반려
+                          </button>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => handleDelete(item._id || item.id)}
+                        className="ml-3 text-xs text-slate-400 transition hover:text-rose-300"
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="px-4 py-8 text-center text-sm text-slate-400">
+                    표시할 데이터가 없습니다.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-center p-6 text-gray-500">
-                  표시할 데이터가 없습니다.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </motion.div>
   );
