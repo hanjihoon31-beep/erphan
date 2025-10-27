@@ -1,4 +1,8 @@
 // src/App.jsx
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import ApprovalPage from "./pages/ApprovalPage";
+import ManagePage from "./pages/ManagePage";
+import InventoryPage from "./pages/InventoryPage";
 import React from "react";
 import InventoryPage from "./pages/InventoryPage";
 import ManagePage from "./pages/ManagePage";
