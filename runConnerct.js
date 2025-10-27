@@ -1,3 +1,4 @@
+// runConnect.js
 import { sendCodexCommand } from "./codexConnect.js";
 
 const cmd = process.argv.slice(2).join(" ").trim();
