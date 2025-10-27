@@ -67,6 +67,7 @@ app.use("/api/gift-cards", giftCardRouter);
 app.use("/api/daily-cash", dailyCashRouter);
 app.use("/api/disposal", disposalRouter);
 app.use("/api/vouchers", voucherRouter);
+app.use("/api/approvals", approvalRouter);
 
 app.get("/", (req, res) => {
   res.send("ERP Server Running with Cash Management & Voucher System ✅");
