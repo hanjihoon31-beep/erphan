@@ -69,4 +69,3 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
-console.log("🧩 Codex 자동 로그: 2025-10-27T04:35:52.208Z");
