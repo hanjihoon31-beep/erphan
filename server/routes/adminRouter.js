@@ -1,8 +1,7 @@
 // server/routes/adminRouter.js
 import express from "express";
-const router = express.Router();
-import User from '../models/User';
-const { verifyToken, verifyAdmin, verifySuperAdmin } = require("../middleware/authMiddleware");
+import User from "../models/User.js";
+import { verifyToken, verifyAdmin, verifySuperAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -48,7 +47,8 @@ router.put("/reject/:id", async (req, res) => {
     res.status(500).json({ message: "거절 처리 오류" });
   }
 });
-// 권한 변경
+
+// ✅ 권한 변경
 router.put("/update-role/:id", async (req, res) => {
   try {
     const { role } = req.body;
@@ -80,23 +80,19 @@ router.put("/deactivate/:id", verifyToken, verifyAdmin, async (req, res) => {
     const { reason } = req.body;
     const targetUserId = req.params.id;
 
-    // 자기 자신을 비활성화할 수 없도록 방지
     if (targetUserId === req.user._id.toString()) {
       return res.status(400).json({ message: "자기 자신을 비활성화할 수 없습니다." });
     }
 
-    // 대상 사용자 조회
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
-    // 이미 비활성화된 계정인지 확인
     if (targetUser.status === "inactive") {
       return res.status(400).json({ message: "이미 비활성화된 계정입니다." });
     }
 
-    // 퇴사 처리
     const updatedUser = await User.findByIdAndUpdate(
       targetUserId,
       {
@@ -123,8 +119,8 @@ router.put("/deactivate/:id", verifyToken, verifyAdmin, async (req, res) => {
 router.put("/reactivate/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const targetUserId = req.params.id;
-
     const targetUser = await User.findById(targetUserId);
+
     if (!targetUser) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
@@ -133,7 +129,6 @@ router.put("/reactivate/:id", verifyToken, verifyAdmin, async (req, res) => {
       return res.status(400).json({ message: "비활성화된 계정이 아닙니다." });
     }
 
-    // 재활성화
     const updatedUser = await User.findByIdAndUpdate(
       targetUserId,
       {
