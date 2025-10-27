@@ -1,18 +1,44 @@
 // server/models/User.js
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
-  employeeId: { type: String, required: true, unique: true }, // 사번
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ["employee", "admin", "superadmin"], default: "employee" },
-  isApproved: { type: Boolean, default: false }, // 관리자 승인 여부
-  isActive: { type: Boolean, default: true }, // 계정 활성화 여부 (퇴사 시 false)
-  createdAt: { type: Date, default: Date.now },
-  inactivatedAt: { type: Date }, // 퇴사 처리 날짜
-  inactivatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // 퇴사 처리한 관리자
-  inactivationReason: { type: String }, // 퇴사 사유
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ["user", "admin", "superadmin"],
+      default: "user",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "active", "inactive", "rejected"],
+      default: "pending",
+    },
+    phone: { type: String },
+    store: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
+    position: { type: String },
+    inactivatedAt: { type: Date },
+    inactivatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    inactivationReason: { type: String },
+  },
+  { timestamps: true }
+);
+
+// 🔒 비밀번호 해싱
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-export default mongoose;.model("User", userSchema);
+// 비밀번호 검증
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// ✅ 올바른 export 구문
+export default mongoose.model("User", userSchema);
