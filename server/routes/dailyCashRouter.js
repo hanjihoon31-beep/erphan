@@ -1,10 +1,10 @@
 // server/routes/dailyCashRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const DailyCash = require("../models/DailyCash");
-const CashRequest = require("../models/CashRequest");
-const Store = require("../models/Store");
-const GiftCardType = require("../models/GiftCardType");
+import DailyCash from '../models/DailyCash';
+import CashRequest from '../models/CashRequest';
+import Store from '../models/Store';
+import GiftCardType from '../models/GiftCardType';
 
 const router = express.Router();
 
@@ -404,4 +404,4 @@ router.patch("/request/:id/reject", verifyToken, verifyAdmin, async (req, res) =
   }
 });
 
-module.exports = router;
+export default router;

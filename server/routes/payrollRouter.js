@@ -1,10 +1,10 @@
 // server/routes/payrollRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const Attendance = require("../models/Attendance");
-const AttendanceModificationRequest = require("../models/AttendanceModificationRequest");
-const WageSettings = require("../models/WageSettings");
-const MealCostHistory = require("../models/MealCostHistory");
+import Attendance from '../models/Attendance';
+import AttendanceModificationRequest from '../models/AttendanceModificationRequest';
+import WageSettings from '../models/WageSettings';
+import MealCostHistory from '../models/MealCostHistory';
 
 const router = express.Router();
 
@@ -402,4 +402,4 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
   }
 });
 
-module.exports = router;
+export default router;

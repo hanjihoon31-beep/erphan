@@ -1,10 +1,10 @@
 // server/routes/dailyInventoryRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const DailyInventory = require("../models/DailyInventory");
-const DailyInventoryTemplate = require("../models/DailyInventoryTemplate");
-const Store = require("../models/Store");
-const Product = require("../models/Product");
+import DailyInventory from '../models/DailyInventory';
+import DailyInventoryTemplate from '../models/DailyInventoryTemplate';
+import Store from '../models/Store';
+import Product from '../models/Product';
 
 const router = express.Router();
 
@@ -445,4 +445,4 @@ router.post("/approve-all/:storeId/:date", verifyToken, verifyAdmin, async (req,
   }
 });
 
-module.exports = router;
+export default router;

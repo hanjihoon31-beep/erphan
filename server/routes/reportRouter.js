@@ -1,8 +1,8 @@
 // server/routes/reportRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const Inventory = require("../models/Inventory");
-const MinimumStock = require("../models/MinimumStock");
+import Inventory from '../models/Inventory';
+import MinimumStock from '../models/MinimumStock';
 
 const router = express.Router();
 
@@ -126,4 +126,4 @@ router.get("/inventory-report", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

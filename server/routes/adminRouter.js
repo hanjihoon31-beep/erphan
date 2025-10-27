@@ -1,7 +1,7 @@
 // server/routes/adminRouter.js
 import express from "express";
 const router = express.Router();
-const User = require("../models/User");
+import User from '../models/User';
 const { verifyToken, verifyAdmin, verifySuperAdmin } = require("../middleware/authMiddleware");
 
 const router = express.Router();

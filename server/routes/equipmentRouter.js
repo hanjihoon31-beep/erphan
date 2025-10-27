@@ -1,10 +1,10 @@
 // server/routes/equipmentRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const Equipment = require("../models/Equipment");
-const EquipmentHistory = require("../models/EquipmentHistory");
-const multer = require("multer");
-const path = require("path");
+import Equipment from '../models/Equipment';
+import EquipmentHistory from '../models/EquipmentHistory';
+import multer from 'multer';
+import path from 'path';
 
 const router = express.Router();
 
@@ -389,4 +389,4 @@ router.get("/:id/history", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

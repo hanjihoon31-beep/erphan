@@ -1,13 +1,13 @@
 // server/routes/attendanceRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const Attendance = require("../models/Attendance");
-const AttendanceModificationRequest = require("../models/AttendanceModificationRequest");
-const WorkScheduleSettings = require("../models/WorkScheduleSettings");
-const WageSettings = require("../models/WageSettings");
-const MealCostHistory = require("../models/MealCostHistory");
-const Holiday = require("../models/Holiday");
-const User = require("../models/User");
+import Attendance from '../models/Attendance';
+import AttendanceModificationRequest from '../models/AttendanceModificationRequest';
+import WorkScheduleSettings from '../models/WorkScheduleSettings';
+import WageSettings from '../models/WageSettings';
+import MealCostHistory from '../models/MealCostHistory';
+import Holiday from '../models/Holiday';
+import User from '../models/User';
 
 const router = express.Router();
 
@@ -313,4 +313,4 @@ router.get("/holidays/check/:date", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

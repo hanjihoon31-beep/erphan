@@ -1,11 +1,11 @@
 // server/routes/disposalRouter.js
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const ProductDisposal = require("../models/ProductDisposal");
-const Product = require("../models/Product");
-const Store = require("../models/Store");
+import ProductDisposal from '../models/ProductDisposal';
+import Product from '../models/Product';
+import Store from '../models/Store';
 
 const router = express.Router();
 
@@ -262,7 +262,7 @@ router.post("/export", verifyToken, verifyAdmin, async (req, res) => {
       .sort({ date: -1 });
 
     // Excel 데이터 생성
-    const ExcelJS = require("exceljs");
+    import ExcelJS from 'exceljs';
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("폐기 내역");
 
@@ -330,4 +330,4 @@ router.post("/export", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

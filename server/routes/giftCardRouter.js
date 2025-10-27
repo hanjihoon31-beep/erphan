@@ -1,7 +1,7 @@
 // server/routes/giftCardRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const GiftCardType = require("../models/GiftCardType");
+import GiftCardType from '../models/GiftCardType';
 
 const router = express.Router();
 
@@ -129,4 +129,4 @@ router.patch("/:id/reactivate", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

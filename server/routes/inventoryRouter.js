@@ -1,12 +1,12 @@
 // server/routes/inventoryRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const Store = require("../models/Store");
-const Warehouse = require("../models/Warehouse");
-const Product = require("../models/Product");
-const Inventory = require("../models/Inventory");
-const MinimumStock = require("../models/MinimumStock");
-const StockTransfer = require("../models/StockTransfer");
+import Store from '../models/Store';
+import Warehouse from '../models/Warehouse';
+import Product from '../models/Product';
+import Inventory from '../models/Inventory';
+import MinimumStock from '../models/MinimumStock';
+import StockTransfer from '../models/StockTransfer';
 
 const router = express.Router();
 
@@ -561,4 +561,4 @@ async function processStockTransfer(transfer) {
   await transfer.save();
 }
 
-module.exports = router;
+export default router;

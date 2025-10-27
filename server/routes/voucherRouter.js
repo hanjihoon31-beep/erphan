@@ -1,7 +1,7 @@
 // server/routes/voucherRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const VoucherType = require("../models/VoucherType");
+import VoucherType from '../models/VoucherType';
 
 const router = express.Router();
 
@@ -190,4 +190,4 @@ router.patch("/:id/reactivate", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

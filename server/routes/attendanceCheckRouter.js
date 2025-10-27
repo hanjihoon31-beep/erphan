@@ -1,10 +1,10 @@
 // server/routes/attendanceCheckRouter.js
-const express = require("express");
+import express from 'express';
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-const Attendance = require("../models/Attendance");
-const AttendanceModificationRequest = require("../models/AttendanceModificationRequest");
-const WorkScheduleSettings = require("../models/WorkScheduleSettings");
-const Holiday = require("../models/Holiday");
+import Attendance from '../models/Attendance';
+import AttendanceModificationRequest from '../models/AttendanceModificationRequest';
+import WorkScheduleSettings from '../models/WorkScheduleSettings';
+import Holiday from '../models/Holiday';
 
 const router = express.Router();
 
@@ -327,4 +327,4 @@ router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
