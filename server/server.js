@@ -1,4 +1,9 @@
 // server/server.js
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import approvalRouter from "./routes/approvalRouter.js";
