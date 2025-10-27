@@ -262,7 +262,7 @@ router.post("/export", verifyToken, verifyAdmin, async (req, res) => {
       .sort({ date: -1 });
 
     // Excel 데이터 생성
-    import ExcelJS from 'exceljs';
+    const ExcelJS = (await import("exceljs")).default;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("폐기 내역");
 
