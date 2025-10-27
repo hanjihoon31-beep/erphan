@@ -1,5 +1,5 @@
 // server/routes/adminRouter.js
-const express = require("express");
+const router = express.Router();
 const User = require("../models/User");
 const { verifyToken, verifyAdmin, verifySuperAdmin } = require("../middleware/authMiddleware");
 
