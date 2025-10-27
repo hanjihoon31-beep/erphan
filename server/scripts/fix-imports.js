@@ -2,55 +2,42 @@
 import fs from "fs";
 import path from "path";
 
-const ROUTES_DIR = path.join(process.cwd(), "server", "routes");
-const BACKUP_DIR = path.join(ROUTES_DIR, "_backup_" + Date.now());
+const rootDir = path.resolve("./server");
+const folders = ["routes", "models", "middleware"];
 
-// ✅ 백업 폴더 생성
-fs.mkdirSync(BACKUP_DIR, { recursive: true });
-console.log("📦 백업 폴더 생성 완료:", BACKUP_DIR);
+for (const folder of folders) {
+  const dirPath = path.join(rootDir, folder);
+  if (!fs.existsSync(dirPath)) continue;
 
-// ✅ 모든 .js 파일 찾기
-const jsFiles = fs.readdirSync(ROUTES_DIR).filter(f => f.endsWith(".js"));
+  const files = fs.readdirSync(dirPath).filter(f => f.endsWith(".js"));
 
-for (const file of jsFiles) {
-  const filePath = path.join(ROUTES_DIR, file);
-  const backupPath = path.join(BACKUP_DIR, file);
+  for (const file of files) {
+    const filePath = path.join(dirPath, file);
+    let code = fs.readFileSync(filePath, "utf-8");
 
-  // 원본 백업
-  fs.copyFileSync(filePath, backupPath);
+    // require → import
+    code = code.replace(/const (.*?) = require\(["'](.*?)["']\);?/g, (match, name, modulePath) => {
+      if (modulePath.startsWith(".")) {
+        // 로컬 모듈에는 .js 확장자 추가
+        if (!modulePath.endsWith(".js")) modulePath += ".js";
+      }
+      return `import ${name} from "${modulePath}";`;
+    });
 
-  let content = fs.readFileSync(filePath, "utf8");
+    // module.exports → export default
+    code = code.replace(/module\.exports\s*=\s*(\w+);?/g, "export default $1;");
 
-  // --- 1. require() → import 변환 ---
-  content = content.replace(
-    /const\s*{\s*([\w,\s]+)\s*}\s*=\s*require\(["'](.+?)["']\);?/g,
-    (m, vars, mod) => `import { ${vars.trim()} } from "${mod}.js";`
-  );
-  content = content.replace(
-    /const\s+(\w+)\s*=\s*require\(["'](.+?)["']\);?/g,
-    (m, name, mod) => `import ${name} from "${mod}.js";`
-  );
+    // CommonJS에서 import 구문 누락 시 자동 삽입 (보조)
+    if (!code.includes("export default") && !code.includes("export ")) {
+      const routerMatch = code.match(/const router\s*=\s*express\.Router\(\)/);
+      if (routerMatch) {
+        code += `\n\nexport default router;`;
+      }
+    }
 
-  // --- 2. ../models, ../middleware 등 상대경로에 .js 확장자 추가 ---
-  content = content.replace(
-    /from\s+["'](\.\.\/(?:models|routes|middleware|utils)\/[A-Za-z0-9_-]+)(["'])/g,
-    'from "$1.js"$2'
-  );
-
-  // --- 3. 누락된 슬래시 복원 ("..models" → "../models") ---
-  content = content.replace(
-    /from\s+["']\.\.([^/])/g,
-    'from "../$1'
-  );
-
-  // --- 4. 중복 따옴표/공백 정리 ---
-  content = content.replace(/["']{2,}/g, '"');
-  content = content.replace(/\s{2,}/g, " ");
-
-  // 저장
-  fs.writeFileSync(filePath, content, "utf8");
-  console.log(`✅ 수정 완료: ${file}`);
+    fs.writeFileSync(filePath, code, "utf-8");
+    console.log(`✅ Updated ${filePath}`);
+  }
 }
 
-console.log("\n✨ 모든 라우터 파일의 import 경로가 교정되었습니다!");
-console.log("🗂  백업 위치:", BACKUP_DIR);
+console.log("✨ 모든 파일이 ESM 형식으로 변환되었습니다!");
