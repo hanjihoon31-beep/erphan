@@ -1,43 +1,28 @@
 // codexWatcher.js
-import fs from "fs";
-import path from "path";
-import { execSync } from "child_process";
-import { executeCodexCommand } from "./codexCommand.js";
+import chokidar from "chokidar";
+import { exec } from "child_process";
 
-const watchDir = path.resolve("./");
+console.log("👀 Codex Watcher 실행 중...");
 
-function run(cmd) {
-  console.log(`🟢 실행 중: ${cmd}`);
-  execSync(cmd, { stdio: "inherit" });
-}
+const watcher = chokidar.watch(".", {
+  ignored: /(^|[\/\\])(\..|node_modules|\.git)/, // ✅ .git 폴더 무시
+  persistent: true,
+});
 
-function logChange(type, filePath) {
-  const timestamp = new Date().toISOString();
-  console.log(`\n[${timestamp}] ${type.toUpperCase()} 감지: ${filePath}`);
+watcher.on("change", (path) => {
+  console.log(`🧠 Codex 명령 수신: ${path} 수정됨`);
 
-  // .env는 무시 (보안)
-  if (filePath.includes(".env")) {
-    console.log("⚠️ .env 관련 변경은 무시되었습니다.");
+  // .git 관련 파일은 무시 (안전망)
+  if (path.includes(".git")) {
+    console.log("⏩ .git 변경 감지 — 무시합니다.");
     return;
   }
 
-  // ChatGPT 명령으로 전달
-  const commandText = `${filePath} ${type}됨`;
-  executeCodexCommand(commandText);
-}
-
-// 전체 프로젝트 감시
-fs.watch(
-  watchDir,
-  { recursive: true },
-  (eventType, filename) => {
-    if (!filename) return;
-    const filePath = path.join(watchDir, filename);
-    if (!fs.existsSync(filePath)) return;
-
-    if (eventType === "change") logChange("수정", filePath);
-    else if (eventType === "rename") logChange("생성/이동", filePath);
-  }
-);
-
-console.log("👀 Codex Watcher 실행 중... (VSCode 파일 변경 자동 반영)");
+  exec("npm run push", (err, stdout, stderr) => {
+    if (err) {
+      console.error("❌ 자동 푸시 실패:", stderr);
+      return;
+    }
+    console.log("🚀 자동 푸시 완료:", stdout);
+  });
+});
