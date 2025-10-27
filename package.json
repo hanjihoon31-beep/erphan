@@ -9,17 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "apply": "node autoApply.js",
-    "push": "node autoPush.js",
-    "watch": "node codexWatcher.js",
-    "cmd": "node autoApply.js",
-    "local": "node codexLocalAPI.js",
+    "push": "node codexAutoPush.js",
     "watch": "node codexWatcher.js",
     "cmd": "node -e \"import('./codexCommand.js').then(m => m.executeCodexCommand(process.argv.slice(2).join(' ')))\"",
+    "local": "node codexLocalAPI.js",
     "control": "node codexControlServer.js",
-    "connect": "node runConnect.js",
-    "connect": "node runConnect.js",
-    "control": "node codexControlServer.js",
-    "push": "node codexAutoPush.js"
+    "connect": "node runConnect.js"
   },
   "dependencies": {
     "axios": "^1.12.2",
@@ -36,6 +31,7 @@
     "lucide-react": "^0.546.0",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
+    "node-notifier": "^10.0.1",
     "nodemailer": "^7.0.9",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
