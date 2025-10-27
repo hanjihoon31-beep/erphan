@@ -2,7 +2,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
+import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
 import ProductDisposal from '../models/ProductDisposal';
 import Product from '../models/Product';
 import Store from '../models/Store';
@@ -263,6 +263,7 @@ router.post("/export", verifyToken, verifyAdmin, async (req, res) => {
 
     // Excel 데이터 생성
     const ExcelJS = (await import("exceljs")).default;
+
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("폐기 내역");
 
