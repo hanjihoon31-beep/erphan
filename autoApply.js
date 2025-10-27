@@ -1,0 +1,30 @@
+import { execSync } from "child_process";
+import fs from "fs";
+
+function run(cmd) {
+  console.log(`▶ 실행: ${cmd}`);
+  execSync(cmd, { stdio: "inherit" });
+}
+
+// ✅ 예시 1: 파일 수정 (server.js 내 URI 변경)
+const serverPath = "./server/server.js";
+if (fs.existsSync(serverPath)) {
+  let content = fs.readFileSync(serverPath, "utf-8");
+  content = content.replace(
+    /mongodb:\/\/localhost:\d+\/\w+/,
+    "mongodb://localhost:27017/erphan_db"
+  );
+  fs.writeFileSync(serverPath, content);
+  console.log("✅ server.js MongoDB URI 수정 완료");
+}
+
+// ✅ 예시 2: 불필요한 파일 삭제
+const oldFile = "./server/routes/tempRouter.js";
+if (fs.existsSync(oldFile)) {
+  fs.unlinkSync(oldFile);
+  console.log("🗑️ tempRouter.js 삭제 완료");
+}
+
+// ✅ GitHub에 자동 푸시
+run("node autoPush.js");
+// 수정 감지됨: C:\Users\thsut\erphan\src\pages\Erphan.css (2025-10-27T04:19:39.388Z)
