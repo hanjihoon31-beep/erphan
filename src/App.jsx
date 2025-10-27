@@ -1,5 +1,8 @@
 // src/App.jsx
 import React from "react";
+import InventoryPage from "./pages/InventoryPage";
+import ManagePage from "./pages/ManagePage";
+import ApprovalPage from "./pages/ApprovalPage";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { InventoryProvider } from "./context/InventoryContext";
@@ -44,6 +47,13 @@ function PrivateRoute({ children, roles }) {
 
 export default function App() {
   return (
+
+<div className="flex gap-2 p-3 border-b mb-4">
+  <a href="/approval" className="px-3 py-2 rounded hover:underline">승인</a>
+  <a href="/manage" className="px-3 py-2 rounded hover:underline">관리</a>
+  <a href="/inventory" className="px-3 py-2 rounded hover:underline">재고</a>
+</div>
+
     <Router>
       <AuthProvider>
         <InventoryProvider>
@@ -85,7 +95,13 @@ export default function App() {
                         <Route path="equipment" element={<EquipmentManagement />} />
                         <Route path="disposal" element={<ProductDisposalManagement />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
-                      </Routes>
+                      
+  <Route path="/approval" element={<ApprovalPage />} />
+
+  <Route path="/manage" element={<ManagePage />} />
+
+  <Route path="/inventory" element={<InventoryPage />} />
+</Routes>
                     </div>
                   </div>
                 </PrivateRoute>
