@@ -3,14 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+"scripts": {
   "dev": "vite",
   "build": "vite build",
   "lint": "eslint .",
   "preview": "vite preview",
   "apply": "node autoApply.js",
   "push": "node autoPush.js",
-  "watch": "node codexWatcher.js"
+  "watch": "node codexWatcher.js",
+  "cmd": "node autoApply.js"
 }
 ,
   "dependencies": {

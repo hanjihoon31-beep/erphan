@@ -1,3 +1,4 @@
+import { executeCodexCommand } from "./codexCommand.js";
 import { execSync } from "child_process";
 import fs from "fs";
 
@@ -24,6 +25,13 @@ if (fs.existsSync(oldFile)) {
   fs.unlinkSync(oldFile);
   console.log("🗑️ tempRouter.js 삭제 완료");
 }
+// ✅ Codex 명령 자동 실행 (명령어가 전달되면 실행)
+const args = process.argv.slice(2);
+if (args.length > 0) {
+  const commandText = args.join(" ");
+  executeCodexCommand(commandText);
+}
+
 
 // ✅ GitHub에 자동 푸시
 run("node autoPush.js");
@@ -57,8 +65,3 @@ run("node autoPush.js");
 // 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:33:31.416Z)
 // 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:33:36.596Z)
 // 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:33:41.764Z)
-// 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:33:46.915Z)
-// 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:33:52.063Z)
-// 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:33:57.220Z)
-// 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:34:02.374Z)
-// 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:34:07.520Z)
