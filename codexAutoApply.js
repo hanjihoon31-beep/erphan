@@ -14,6 +14,27 @@ export function writeFileSafe(p, content) {
   console.log("✏️  파일 저장:", p);
 }
 
+// codexAutoApply.js 안에 추가
+export function createPage(name, title) {
+  const filePath = path.resolve(`./src/pages/${name}.tsx`);
+  const code = `
+export default function ${name}() {
+  return (
+    <div className="p-6 card">
+      <h1 className="text-xl font-bold mb-4">${title}</h1>
+      <div className="flex gap-2">
+        <button className="px-3 py-2 bg-blue-500 text-white rounded">저장</button>
+        <button className="px-3 py-2 bg-yellow-500 text-white rounded">수정</button>
+        <button className="px-3 py-2 bg-red-500 text-white rounded">삭제</button>
+      </div>
+    </div>
+  );
+}
+`;
+  fs.writeFileSync(filePath, code, "utf-8");
+  console.log(`🆕 페이지 생성됨: ${filePath}`);
+}
+
 export function replaceInFile(p, replacer) {
   const prev = readFileSafe(p);
   const next = replacer(prev);
