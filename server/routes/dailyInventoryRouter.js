@@ -1,10 +1,10 @@
 // server/routes/dailyInventoryRouter.js
-import express from 'express';
-const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
-import DailyInventory from '../models/DailyInventory';
-import DailyInventoryTemplate from '../models/DailyInventoryTemplate';
-import Store from '../models/Store';
-import Product from '../models/Product';
+import express from "express";
+import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
+import DailyInventory from "../models/DailyInventory.js";
+import DailyInventoryTemplate from "../models/DailyInventoryTemplate.js";
+import Store from "../models/Store.js";
+import Product from "../models/Product.js";
 
 const router = express.Router();
 
@@ -33,7 +33,6 @@ router.post("/templates", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeId, productId, displayOrder } = req.body;
 
-    // 중복 체크
     const existing = await DailyInventoryTemplate.findOne({
       store: storeId,
       product: productId
@@ -114,16 +113,12 @@ router.delete("/templates/:id", verifyToken, verifyAdmin, async (req, res) => {
 
 // ==================== 일일 재고 생성 (자동/수동) ====================
 
-// 특정 날짜의 일일 재고 서식 생성
 router.post("/generate", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.body;
-
-    // 날짜 파싱 (YYYY-MM-DD)
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
-    // 해당 날짜의 재고가 이미 있는지 확인
     const existingCount = await DailyInventory.countDocuments({
       store: storeId,
       date: targetDate
@@ -133,7 +128,6 @@ router.post("/generate", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "이미 생성된 재고 서식입니다." });
     }
 
-    // 템플릿 조회
     const templates = await DailyInventoryTemplate.find({
       store: storeId,
       isActive: true
@@ -143,7 +137,6 @@ router.post("/generate", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "재고 템플릿이 설정되지 않았습니다." });
     }
 
-    // 전날 마감 재고 조회 (어제 날짜)
     const previousDate = new Date(targetDate);
     previousDate.setDate(previousDate.getDate() - 1);
 
@@ -152,13 +145,11 @@ router.post("/generate", verifyToken, async (req, res) => {
       date: previousDate
     });
 
-    // 전날 재고를 맵으로 변환
     const previousStockMap = {};
     previousInventories.forEach(inv => {
       previousStockMap[inv.product.toString()] = inv.closingStock || 0;
     });
 
-    // 새로운 일일 재고 생성
     const dailyInventories = templates.map(template => ({
       store: storeId,
       product: template.product,
@@ -182,11 +173,9 @@ router.post("/generate", verifyToken, async (req, res) => {
 
 // ==================== 일일 재고 조회 ====================
 
-// 특정 매장, 특정 날짜의 일일 재고 조회
 router.get("/:storeId/:date", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.params;
-
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
@@ -224,9 +213,8 @@ router.get("/pending/all", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-// ==================== 일일 재고 입력 및 수정 ====================
+// ==================== 일일 재고 수정 ====================
 
-// 일일 재고 항목 수정 (근무자)
 router.put("/:id", verifyToken, async (req, res) => {
   try {
     const {
@@ -244,26 +232,21 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
     }
 
-    // 재고 차이 계산
     let discrepancy = 0;
     if (morningStock !== undefined && dailyInv.previousClosingStock !== undefined) {
       discrepancy = morningStock - dailyInv.previousClosingStock;
     }
 
-    // 업데이트
-    dailyInv.morningStock = morningStock !== undefined ? morningStock : dailyInv.morningStock;
-    dailyInv.closingStock = closingStock !== undefined ? closingStock : dailyInv.closingStock;
-    dailyInv.inboundQuantity = inboundQuantity !== undefined ? inboundQuantity : dailyInv.inboundQuantity;
-    dailyInv.outboundQuantity = outboundQuantity !== undefined ? outboundQuantity : dailyInv.outboundQuantity;
+    dailyInv.morningStock = morningStock ?? dailyInv.morningStock;
+    dailyInv.closingStock = closingStock ?? dailyInv.closingStock;
+    dailyInv.inboundQuantity = inboundQuantity ?? dailyInv.inboundQuantity;
+    dailyInv.outboundQuantity = outboundQuantity ?? dailyInv.outboundQuantity;
     dailyInv.discrepancy = discrepancy;
     dailyInv.discrepancyReason = discrepancyReason || dailyInv.discrepancyReason;
     dailyInv.notes = notes || dailyInv.notes;
     dailyInv.updatedAt = new Date();
 
-    // 상태 업데이트
-    if (dailyInv.status === "대기") {
-      dailyInv.status = "작성중";
-    }
+    if (dailyInv.status === "대기") dailyInv.status = "작성중";
 
     await dailyInv.save();
 
@@ -278,49 +261,20 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
-// 일일 재고 승인 요청 (근무자)
-router.put("/:id/submit", verifyToken, async (req, res) => {
-  try {
-    const dailyInv = await DailyInventory.findById(req.params.id);
+// ==================== 일괄 승인 요청 ====================
 
-    if (!dailyInv) {
-      return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
-    }
-
-    // 재고 차이가 있는 경우 사유 필수
-    if (Math.abs(dailyInv.discrepancy) > 0 && !dailyInv.discrepancyReason) {
-      return res.status(400).json({
-        message: "재고 차이가 발생했습니다. 사유를 입력해주세요."
-      });
-    }
-
-    dailyInv.status = "승인요청";
-    dailyInv.submittedBy = req.user._id;
-    dailyInv.submittedAt = new Date();
-    await dailyInv.save();
-
-    res.json({ success: true, message: "승인 요청이 제출되었습니다." });
-  } catch (error) {
-    console.error("승인 요청 오류:", error);
-    res.status(500).json({ message: "승인 요청 실패" });
-  }
-});
-
-// 일일 재고 일괄 승인 요청 (매장별)
 router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.params;
-
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
-    import Inventory from "../models/Inventory.js";
+    const inventories = await DailyInventory.find({
       store: storeId,
       date: targetDate,
       status: { $in: ["대기", "작성중"] }
     });
 
-    // 재고 차이가 있지만 사유가 없는 항목 체크
     const invalidItems = inventories.filter(inv =>
       Math.abs(inv.discrepancy) > 0 && !inv.discrepancyReason
     );
@@ -331,7 +285,6 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
       });
     }
 
-    // 일괄 업데이트
     await DailyInventory.updateMany(
       {
         store: storeId,
@@ -355,20 +308,13 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
   }
 });
 
-// ==================== 일일 재고 승인/거부 (관리자) ====================
+// ==================== 일괄 승인/거부 ====================
 
-// 일일 재고 승인
 router.put("/:id/approve", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const dailyInv = await DailyInventory.findById(req.params.id);
-
-    if (!dailyInv) {
-      return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
-    }
-
-    if (dailyInv.status !== "승인요청") {
-      return res.status(400).json({ message: "승인 요청 상태가 아닙니다." });
-    }
+    if (!dailyInv) return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
+    if (dailyInv.status !== "승인요청") return res.status(400).json({ message: "승인 요청 상태가 아닙니다." });
 
     dailyInv.status = "승인";
     dailyInv.approvedBy = req.user._id;
@@ -382,24 +328,14 @@ router.put("/:id/approve", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-// 일일 재고 거부
 router.put("/:id/reject", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { rejectionReason } = req.body;
-
-    if (!rejectionReason) {
-      return res.status(400).json({ message: "거부 사유를 입력해주세요." });
-    }
+    if (!rejectionReason) return res.status(400).json({ message: "거부 사유를 입력해주세요." });
 
     const dailyInv = await DailyInventory.findById(req.params.id);
-
-    if (!dailyInv) {
-      return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
-    }
-
-    if (dailyInv.status !== "승인요청") {
-      return res.status(400).json({ message: "승인 요청 상태가 아닙니다." });
-    }
+    if (!dailyInv) return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
+    if (dailyInv.status !== "승인요청") return res.status(400).json({ message: "승인 요청 상태가 아닙니다." });
 
     dailyInv.status = "거부";
     dailyInv.rejectionReason = rejectionReason;
@@ -414,11 +350,9 @@ router.put("/:id/reject", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-// 일일 재고 일괄 승인 (매장별, 날짜별)
 router.post("/approve-all/:storeId/:date", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeId, date } = req.params;
-
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
