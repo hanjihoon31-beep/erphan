@@ -1,19 +1,16 @@
-// src/App.jsx
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import ApprovalPage from "./pages/ApprovalPage";
-import ManagePage from "./pages/ManagePage";
-import InventoryPage from "./pages/InventoryPage";
 import React from "react";
-import InventoryPage from "./pages/InventoryPage";
-import ManagePage from "./pages/ManagePage";
-import ApprovalPage from "./pages/ApprovalPage";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { InventoryProvider } from "./context/InventoryContext";
 
-// 📄 페이지 불러오기
+// ✅ 새 페이지들
+import ApprovalPage from "./pages/ApprovalPage";
+import ManagePage from "./pages/ManagePage";
+import InventoryPage from "./pages/InventoryPage";
+
+// 📄 기존 ERP 페이지들
 import LoginPage from "./pages/LoginPage";
-import Erphan from "./pages/Erphan"; // ✅ ERP 메인 진입점 (로그인 후 이동)
+import Erphan from "./pages/Erphan";
 import WarehouseInbound from "./pages/WarehouseInbound";
 import WarehouseOutbound from "./pages/WarehouseOutbound";
 import WarehouseReturn from "./pages/WarehouseReturn";
@@ -34,10 +31,9 @@ import AttendanceSettings from "./pages/AttendanceSettings";
 import PayrollManagement from "./pages/PayrollManagement";
 import EquipmentManagement from "./pages/EquipmentManagement";
 import ProductDisposalManagement from "./pages/ProductDisposalManagement";
-
 import Sidebar from "./components/Sidebar";
 
-// ✅ 보호 라우트 (인증 + 권한 체크)
+// ✅ 보호 라우트
 function PrivateRoute({ children, roles }) {
   const { user } = useAuth();
 
@@ -51,21 +47,21 @@ function PrivateRoute({ children, roles }) {
 
 export default function App() {
   return (
-
-<div className="flex gap-2 p-3 border-b mb-4">
-  <a href="/approval" className="px-3 py-2 rounded hover:underline">승인</a>
-  <a href="/manage" className="px-3 py-2 rounded hover:underline">관리</a>
-  <a href="/inventory" className="px-3 py-2 rounded hover:underline">재고</a>
-</div>
-
     <Router>
       <AuthProvider>
         <InventoryProvider>
+          {/* 상단 네비게이션 */}
+          <div className="flex gap-2 p-3 border-b mb-4 bg-white shadow-sm">
+            <Link to="/approval" className="px-3 py-2 rounded hover:underline">승인</Link>
+            <Link to="/manage" className="px-3 py-2 rounded hover:underline">관리</Link>
+            <Link to="/inventory" className="px-3 py-2 rounded hover:underline">재고</Link>
+          </div>
+
           <Routes>
-            {/* 🏠 로그인 */}
+            {/* 로그인 */}
             <Route path="/" element={<LoginPage />} />
 
-            {/* 💼 ERP 메인 진입 페이지 */}
+            {/* ERP 메인 */}
             <Route
               path="/erp"
               element={
@@ -75,7 +71,7 @@ export default function App() {
               }
             />
 
-            {/* 👑 관리자 전용 */}
+            {/* 관리자 페이지 */}
             <Route
               path="/erp/admin/*"
               element={
@@ -99,20 +95,14 @@ export default function App() {
                         <Route path="equipment" element={<EquipmentManagement />} />
                         <Route path="disposal" element={<ProductDisposalManagement />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
-                      
-  <Route path="/approval" element={<ApprovalPage />} />
-
-  <Route path="/manage" element={<ManagePage />} />
-
-  <Route path="/inventory" element={<InventoryPage />} />
-</Routes>
+                      </Routes>
                     </div>
                   </div>
                 </PrivateRoute>
               }
             />
 
-            {/* 👷 직원 전용 */}
+            {/* 직원 페이지 */}
             <Route
               path="/erp/employee/dashboard"
               element={
@@ -122,49 +112,34 @@ export default function App() {
               }
             />
 
-            {/* 🏭 창고 관련 페이지 */}
+            {/* 창고 관련 */}
             <Route
               path="/erp/warehouse/inbound"
-              element={
-                <PrivateRoute roles={["employee", "admin", "superadmin"]}>
-                  <WarehouseInbound />
-                </PrivateRoute>
-              }
+              element={<PrivateRoute roles={["employee", "admin", "superadmin"]}><WarehouseInbound /></PrivateRoute>}
             />
             <Route
               path="/erp/warehouse/outbound"
-              element={
-                <PrivateRoute roles={["employee", "admin", "superadmin"]}>
-                  <WarehouseOutbound />
-                </PrivateRoute>
-              }
+              element={<PrivateRoute roles={["employee", "admin", "superadmin"]}><WarehouseOutbound /></PrivateRoute>}
             />
             <Route
               path="/erp/warehouse/return"
-              element={
-                <PrivateRoute roles={["employee", "admin", "superadmin"]}>
-                  <WarehouseReturn />
-                </PrivateRoute>
-              }
+              element={<PrivateRoute roles={["employee", "admin", "superadmin"]}><WarehouseReturn /></PrivateRoute>}
             />
             <Route
               path="/erp/warehouse/dispose"
-              element={
-                <PrivateRoute roles={["employee", "admin", "superadmin"]}>
-                  <WarehouseDispose />
-                </PrivateRoute>
-              }
+              element={<PrivateRoute roles={["employee", "admin", "superadmin"]}><WarehouseDispose /></PrivateRoute>}
             />
             <Route
               path="/erp/warehouse/inventory"
-              element={
-                <PrivateRoute roles={["employee", "admin", "superadmin"]}>
-                  <WarehouseInventory />
-                </PrivateRoute>
-              }
+              element={<PrivateRoute roles={["employee", "admin", "superadmin"]}><WarehouseInventory /></PrivateRoute>}
             />
 
-            {/* 🚫 존재하지 않는 경로 */}
+            {/* 새로 추가된 3개 페이지 */}
+            <Route path="/approval" element={<ApprovalPage />} />
+            <Route path="/manage" element={<ManagePage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
+
+            {/* 존재하지 않는 경로 */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </InventoryProvider>
