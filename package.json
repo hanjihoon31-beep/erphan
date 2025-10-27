@@ -3,17 +3,21 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "apply": "node autoApply.js",
-  "push": "node autoPush.js",
-  "watch": "node codexWatcher.js",
-  "cmd": "node autoApply.js"
-}
-,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "apply": "node autoApply.js",
+    "push": "node autoPush.js",
+    "watch": "node codexWatcher.js",
+    "cmd": "node autoApply.js",
+    "local": "node codexLocalAPI.js",
+    "watch": "node codexWatcher.js",
+    "cmd": "node -e \"import('./codexCommand.js').then(m => m.executeCodexCommand(process.argv.slice(2).join(' ')))\"",
+    "control": "node codexControlServer.js",
+    "connect": "node runConnect.js"
+  },
   "dependencies": {
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",

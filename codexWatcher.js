@@ -1,6 +1,8 @@
+// codexWatcher.js
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { executeCodexCommand } from "./codexCommand.js";
 
 const watchDir = path.resolve("./");
 
@@ -13,31 +15,29 @@ function logChange(type, filePath) {
   const timestamp = new Date().toISOString();
   console.log(`\n[${timestamp}] ${type.toUpperCase()} 감지: ${filePath}`);
 
-  // autoApply.js에 로그 업데이트
-  const logPath = "./autoApply.js";
-  const logContent = `// ${type} 감지됨: ${filePath} (${timestamp})\n`;
-  fs.appendFileSync(logPath, logContent);
+  // .env는 무시 (보안)
+  if (filePath.includes(".env")) {
+    console.log("⚠️ .env 관련 변경은 무시되었습니다.");
+    return;
+  }
 
-  // GitHub 자동 업로드
-  run("npm run push");
+  // ChatGPT 명령으로 전달
+  const commandText = `${filePath} ${type}됨`;
+  executeCodexCommand(commandText);
 }
 
-// 프로젝트 전체 감시
+// 전체 프로젝트 감시
 fs.watch(
   watchDir,
   { recursive: true },
   (eventType, filename) => {
     if (!filename) return;
-    if (filename.includes(".env")) return; // ✅ .env 파일 변경 무시
-
     const filePath = path.join(watchDir, filename);
+    if (!fs.existsSync(filePath)) return;
 
     if (eventType === "change") logChange("수정", filePath);
-    else if (eventType === "rename") {
-      if (fs.existsSync(filePath)) logChange("생성", filePath);
-      else logChange("삭제", filePath);
-    }
+    else if (eventType === "rename") logChange("생성/이동", filePath);
   }
 );
 
-console.log("👀 Codex Watcher 실행 중... (파일 변경 시 자동 푸시됩니다)");
+console.log("👀 Codex Watcher 실행 중... (VSCode 파일 변경 자동 반영)");
