@@ -1,0 +1,89 @@
+// server/routes/authRouter.js
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+
+const router = express.Router();
+
+// ✅ 회원가입 (승인 대기)
+router.post("/register", async (req, res) => {
+  try {
+    const { employeeId, name, email, password, role } = req.body;
+
+    // 중복 체크
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      return res.status(400).json({ success: false, message: "이미 등록된 이메일입니다." });
+    }
+
+    const existingUserById = await User.findOne({ employeeId });
+    if (existingUserById) {
+      return res.status(400).json({ success: false, message: "이미 등록된 사번입니다." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.create({
+      employeeId,
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "employee",
+      isApproved: false, // 승인 대기
+      isActive: true
+    });
+
+    res.status(201).json({ success: true, message: "관리자 승인 대기 중입니다." });
+  } catch (error) {
+    console.error("회원가입 오류:", error);
+    res.status(500).json({ success: false, message: "서버 오류가 발생했습니다." });
+  }
+});
+
+// ✅ 로그인 (사번으로 로그인, 승인된 계정만)
+router.post("/login", async (req, res) => {
+  try {
+    const { employeeId, password } = req.body;
+
+    const user = await User.findOne({ employeeId });
+    if (!user) {
+      return res.status(400).json({ success: false, message: "존재하지 않는 사번입니다." });
+    }
+
+    // 승인 확인
+    if (!user.isApproved) {
+      return res.status(403).json({ success: false, message: "관리자 승인 대기 중입니다." });
+    }
+
+    // 계정 활성화 확인
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: "비활성화된 계정입니다. 관리자에게 문의하세요." });
+    }
+
+    // 비밀번호 확인
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "비밀번호가 일치하지 않습니다." });
+    }
+
+    // JWT 토큰 생성
+    const token = jwt.sign(
+      { userId: user._id, employeeId: user.employeeId, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      success: true,
+      token,
+      role: user.role,
+      name: user.name,
+      employeeId: user.employeeId
+    });
+  } catch (error) {
+    console.error("로그인 오류:", error);
+    res.status(500).json({ success: false, message: "로그인 중 오류가 발생했습니다." });
+  }
+});
+
+export default router;

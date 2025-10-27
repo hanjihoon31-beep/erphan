@@ -1,0 +1,407 @@
+// server/routes/dailyCashRouter.js
+import express from 'express';
+import { verifyToken, verifyAdmin } from "../middleware/authMiddleware.js";
+import DailyCash from "../models/DailyCash.js"';
+import CashRequest from "../models/CashRequest.js"';
+import Store from "../models/Store.js"';
+import GiftCardType from "../models/GiftCardType.js"';
+
+const router = express.Router();
+
+// ==================== 일일 시재금 관리 ====================
+
+// 특정 날짜의 시재금 조회
+router.get("/store/:storeId/date/:date", verifyToken, async (req, res) => {
+  try {
+    const { storeId, date } = req.params;
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    let dailyCash = await DailyCash.findOne({
+      store: storeId,
+      date: targetDate
+    })
+      .populate("store", "storeNumber storeName")
+      .populate("user", "name email")
+      .populate("morningCheck.checkedBy", "name email")
+      .populate("giftCards.type", "name")
+      .populate("vouchers.voucherType", "category name");
+
+    // 없으면 자동 생성
+    if (!dailyCash) {
+      dailyCash = await DailyCash.create({
+        store: storeId,
+        date: targetDate,
+        user: req.user._id,
+        status: "작성중"
+      });
+
+      await dailyCash.populate("store", "storeNumber storeName");
+      await dailyCash.populate("user", "name email");
+    }
+
+    res.json(dailyCash);
+  } catch (error) {
+    console.error("시재금 조회 오류:", error);
+    res.status(500).json({ message: "시재금 조회 실패" });
+  }
+});
+
+// 시재금 정보 업데이트 (입금, 상품권, 권면, 이월, 판매정보)
+router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
+  try {
+    const { storeId, date } = req.params;
+    const { deposit, giftCards, vouchers, carryOver, sales, note } = req.body;
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    let dailyCash = await DailyCash.findOne({
+      store: storeId,
+      date: targetDate
+    });
+
+    if (!dailyCash) {
+      dailyCash = new DailyCash({
+        store: storeId,
+        date: targetDate,
+        user: req.user._id
+      });
+    }
+
+    // 입금 정보 업데이트
+    if (deposit) {
+      dailyCash.deposit = deposit;
+      dailyCash.calculateDepositTotal();
+    }
+
+    // 상품권 정보 업데이트
+    if (giftCards) {
+      dailyCash.giftCards = giftCards;
+    }
+
+    // 권면 정보 업데이트 (패키지권, 티켓)
+    if (vouchers) {
+      dailyCash.vouchers = vouchers;
+    }
+
+    // 이월 시재 정보 업데이트
+    if (carryOver) {
+      dailyCash.carryOver = carryOver;
+      dailyCash.calculateCarryOverTotal();
+    }
+
+    // 판매 정보 업데이트
+    if (sales) {
+      dailyCash.sales = sales;
+    }
+
+    // 메모
+    if (note !== undefined) {
+      dailyCash.note = note;
+    }
+
+    dailyCash.status = "완료";
+    await dailyCash.save();
+
+    await dailyCash.populate("store", "storeNumber storeName");
+    await dailyCash.populate("user", "name email");
+    await dailyCash.populate("giftCards.type", "name");
+    await dailyCash.populate("vouchers.voucherType", "category name");
+
+    res.json({ success: true, dailyCash });
+  } catch (error) {
+    console.error("시재금 업데이트 오류:", error);
+    res.status(500).json({ message: "시재금 업데이트 실패" });
+  }
+});
+
+// 다음날 아침 시재금 확인
+router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, res) => {
+  try {
+    const { storeId, date } = req.params;
+    const { morningCheck } = req.body;
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    // 전날 데이터 조회 (이월 시재와 비교하기 위해)
+    const previousDate = new Date(targetDate);
+    previousDate.setDate(previousDate.getDate() - 1);
+
+    const previousDailyCash = await DailyCash.findOne({
+      store: storeId,
+      date: previousDate
+    });
+
+    let dailyCash = await DailyCash.findOne({
+      store: storeId,
+      date: targetDate
+    });
+
+    if (!dailyCash) {
+      dailyCash = new DailyCash({
+        store: storeId,
+        date: targetDate,
+        user: req.user._id
+      });
+    }
+
+    // 아침 확인 정보 업데이트
+    dailyCash.morningCheck = {
+      ...morningCheck,
+      checkedBy: req.user._id,
+      checkedAt: new Date()
+    };
+    dailyCash.calculateMorningCheckTotal();
+
+    // 전날 이월 시재와 비교하여 차이 확인
+    if (previousDailyCash && previousDailyCash.carryOver.total > 0) {
+      const diff = dailyCash.morningCheck.total - previousDailyCash.carryOver.total;
+      dailyCash.discrepancy.amount = diff;
+      dailyCash.discrepancy.hasDiscrepancy = diff !== 0;
+
+      if (diff !== 0) {
+        dailyCash.discrepancy.note = `전날 이월: ${previousDailyCash.carryOver.total.toLocaleString()}원, 실제: ${dailyCash.morningCheck.total.toLocaleString()}원, 차이: ${diff.toLocaleString()}원`;
+      }
+    } else {
+      // 전날 데이터 없으면 차이 없음으로 처리
+      dailyCash.discrepancy.hasDiscrepancy = false;
+      dailyCash.discrepancy.amount = 0;
+    }
+
+    await dailyCash.save();
+
+    await dailyCash.populate("store", "storeNumber storeName");
+    await dailyCash.populate("user", "name email");
+    await dailyCash.populate("morningCheck.checkedBy", "name email");
+    await dailyCash.populate("vouchers.voucherType", "category name");
+
+    res.json({
+      success: true,
+      dailyCash,
+      previousDailyCash: previousDailyCash ? {
+        user: previousDailyCash.user,
+        carryOver: previousDailyCash.carryOver
+      } : null
+    });
+  } catch (error) {
+    console.error("아침 시재금 확인 오류:", error);
+    res.status(500).json({ message: "아침 시재금 확인 실패" });
+  }
+});
+
+// 시재금 차이가 있는 내역 조회 (관리자)
+router.get("/discrepancies", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { storeId, startDate, endDate } = req.query;
+
+    let query = { "discrepancy.hasDiscrepancy": true };
+
+    if (storeId) {
+      query.store = storeId;
+    }
+
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const discrepancies = await DailyCash.find(query)
+      .populate("store", "storeNumber storeName")
+      .populate("user", "name email")
+      .populate("morningCheck.checkedBy", "name email")
+      .populate("vouchers.voucherType", "category name")
+      .sort({ date: -1 })
+      .limit(100);
+
+    // 각 차이 건에 대해 전날 근무자 정보도 포함
+    const enrichedDiscrepancies = await Promise.all(
+      discrepancies.map(async (item) => {
+        const previousDate = new Date(item.date);
+        previousDate.setDate(previousDate.getDate() - 1);
+
+        const previousDailyCash = await DailyCash.findOne({
+          store: item.store._id,
+          date: previousDate
+        }).populate("user", "name email");
+
+        return {
+          ...item.toObject(),
+          previousDayUser: previousDailyCash ? previousDailyCash.user : null
+        };
+      })
+    );
+
+    res.json(enrichedDiscrepancies);
+  } catch (error) {
+    console.error("시재금 차이 내역 조회 오류:", error);
+    res.status(500).json({ message: "시재금 차이 내역 조회 실패" });
+  }
+});
+
+// 기간별 시재금 내역 조회
+router.get("/history", verifyToken, async (req, res) => {
+  try {
+    const { storeId, startDate, endDate } = req.query;
+
+    let query = {};
+
+    if (storeId) {
+      query.store = storeId;
+    }
+
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const history = await DailyCash.find(query)
+      .populate("store", "storeNumber storeName")
+      .populate("user", "name email")
+      .populate("morningCheck.checkedBy", "name email")
+      .populate("giftCards.type", "name")
+      .populate("vouchers.voucherType", "category name")
+      .sort({ date: -1 })
+      .limit(100);
+
+    res.json(history);
+  } catch (error) {
+    console.error("시재금 내역 조회 오류:", error);
+    res.status(500).json({ message: "시재금 내역 조회 실패" });
+  }
+});
+
+// ==================== 시재금 청구 관리 ====================
+
+// 시재금 청구 등록
+router.post("/request", verifyToken, async (req, res) => {
+  try {
+    const { storeId, date, items, note } = req.body;
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const request = await CashRequest.create({
+      store: storeId,
+      date: targetDate,
+      requestedBy: req.user._id,
+      items,
+      note
+    });
+
+    await request.populate("store", "storeNumber storeName");
+    await request.populate("requestedBy", "name email");
+
+    res.status(201).json({ success: true, request });
+  } catch (error) {
+    console.error("시재금 청구 등록 오류:", error);
+
+    // 유효성 검증 오류 처리
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ message: messages.join(", ") });
+    }
+
+    res.status(500).json({ message: "시재금 청구 등록 실패" });
+  }
+});
+
+// 시재금 청구 목록 조회
+router.get("/requests", verifyToken, async (req, res) => {
+  try {
+    const { storeId, status } = req.query;
+
+    let query = {};
+
+    if (storeId) {
+      query.store = storeId;
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    const requests = await CashRequest.find(query)
+      .populate("store", "storeNumber storeName")
+      .populate("requestedBy", "name email")
+      .populate("approvedBy", "name email")
+      .sort({ createdAt: -1 })
+      .limit(100);
+
+    res.json(requests);
+  } catch (error) {
+    console.error("시재금 청구 목록 조회 오류:", error);
+    res.status(500).json({ message: "시재금 청구 목록 조회 실패" });
+  }
+});
+
+// 시재금 청구 승인 (관리자)
+router.patch("/request/:id/approve", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const request = await CashRequest.findById(req.params.id);
+
+    if (!request) {
+      return res.status(404).json({ message: "청구 내역을 찾을 수 없습니다." });
+    }
+
+    if (request.status !== "대기") {
+      return res.status(400).json({ message: "이미 처리된 청구입니다." });
+    }
+
+    request.status = "승인";
+    request.approvedBy = req.user._id;
+    request.approvedAt = new Date();
+
+    await request.save();
+
+    await request.populate("store", "storeNumber storeName");
+    await request.populate("requestedBy", "name email");
+    await request.populate("approvedBy", "name email");
+
+    res.json({ success: true, request });
+  } catch (error) {
+    console.error("시재금 청구 승인 오류:", error);
+    res.status(500).json({ message: "시재금 청구 승인 실패" });
+  }
+});
+
+// 시재금 청구 거부 (관리자)
+router.patch("/request/:id/reject", verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { rejectionReason } = req.body;
+
+    const request = await CashRequest.findById(req.params.id);
+
+    if (!request) {
+      return res.status(404).json({ message: "청구 내역을 찾을 수 없습니다." });
+    }
+
+    if (request.status !== "대기") {
+      return res.status(400).json({ message: "이미 처리된 청구입니다." });
+    }
+
+    request.status = "거부";
+    request.approvedBy = req.user._id;
+    request.approvedAt = new Date();
+    request.rejectionReason = rejectionReason;
+
+    await request.save();
+
+    await request.populate("store", "storeNumber storeName");
+    await request.populate("requestedBy", "name email");
+    await request.populate("approvedBy", "name email");
+
+    res.json({ success: true, request });
+  } catch (error) {
+    console.error("시재금 청구 거부 오류:", error);
+    res.status(500).json({ message: "시재금 청구 거부 실패" });
+  }
+});
+
+export default router;
