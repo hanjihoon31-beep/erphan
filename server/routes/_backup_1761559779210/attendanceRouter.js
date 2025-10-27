@@ -11,16 +11,16 @@ import User from '../models/User';
 
 const router = express.Router();
 
-// ==================== 근무시간 설정 관리 (관리자) ====================
+// ==================== 근무?�간 ?�정 관�?(관리자) ====================
 
-// 매장별 근무시간 설정 조회
+// 매장�?근무?�간 ?�정 조회
 router.get("/schedule-settings/:storeId", verifyToken, async (req, res) => {
   try {
     let settings = await WorkScheduleSettings.findOne({ store: req.params.storeId })
       .populate("store", "storeNumber storeName")
       .populate("lastModifiedBy", "name email");
 
-    // 설정이 없으면 기본값 생성
+    // ?�정???�으�?기본�??�성
     if (!settings) {
       settings = await WorkScheduleSettings.create({
         store: req.params.storeId,
@@ -30,12 +30,12 @@ router.get("/schedule-settings/:storeId", verifyToken, async (req, res) => {
 
     res.json(settings);
   } catch (error) {
-    console.error("근무시간 설정 조회 오류:", error);
-    res.status(500).json({ message: "근무시간 설정 조회 실패" });
+    console.error("근무?�간 ?�정 조회 ?�류:", error);
+    res.status(500).json({ message: "근무?�간 ?�정 조회 ?�패" });
   }
 });
 
-// 근무시간 설정 수정 (관리자)
+// 근무?�간 ?�정 ?�정 (관리자)
 router.put("/schedule-settings/:storeId", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const {
@@ -69,14 +69,14 @@ router.put("/schedule-settings/:storeId", verifyToken, verifyAdmin, async (req, 
 
     res.json({ success: true, settings });
   } catch (error) {
-    console.error("근무시간 설정 수정 오류:", error);
-    res.status(500).json({ message: "근무시간 설정 수정 실패" });
+    console.error("근무?�간 ?�정 ?�정 ?�류:", error);
+    res.status(500).json({ message: "근무?�간 ?�정 ?�정 ?�패" });
   }
 });
 
-// ==================== 시급 관리 (관리자) ====================
+// ==================== ?�급 관�?(관리자) ====================
 
-// 특정 사용자의 현재 시급 조회
+// ?�정 ?�용?�의 ?�재 ?�급 조회
 router.get("/wage/:userId", verifyToken, async (req, res) => {
   try {
     const latestWage = await WageSettings.findOne({ user: req.params.userId })
@@ -84,17 +84,17 @@ router.get("/wage/:userId", verifyToken, async (req, res) => {
       .populate("setBy", "name email");
 
     if (!latestWage) {
-      return res.json({ hourlyWage: 10500 }); // 기본값
+      return res.json({ hourlyWage: 10500 }); // 기본�?
     }
 
     res.json(latestWage);
   } catch (error) {
-    console.error("시급 조회 오류:", error);
-    res.status(500).json({ message: "시급 조회 실패" });
+    console.error("?�급 조회 ?�류:", error);
+    res.status(500).json({ message: "?�급 조회 ?�패" });
   }
 });
 
-// 시급 설정 (개별)
+// ?�급 ?�정 (개별)
 router.post("/wage", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { userId, hourlyWage, effectiveDate, notes } = req.body;
@@ -109,18 +109,18 @@ router.post("/wage", verifyToken, verifyAdmin, async (req, res) => {
 
     res.status(201).json({ success: true, wage });
   } catch (error) {
-    console.error("시급 설정 오류:", error);
-    res.status(500).json({ message: "시급 설정 실패" });
+    console.error("?�급 ?�정 ?�류:", error);
+    res.status(500).json({ message: "?�급 ?�정 ?�패" });
   }
 });
 
-// 시급 일괄 설정
+// ?�급 ?�괄 ?�정
 router.post("/wage/bulk", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { userIds, hourlyWage, effectiveDate, notes } = req.body;
 
     if (!Array.isArray(userIds) || userIds.length === 0) {
-      return res.status(400).json({ message: "사용자 목록이 필요합니다." });
+      return res.status(400).json({ message: "?�용??목록???�요?�니??" });
     }
 
     const wages = userIds.map(userId => ({
@@ -133,16 +133,16 @@ router.post("/wage/bulk", verifyToken, verifyAdmin, async (req, res) => {
 
     await WageSettings.insertMany(wages);
 
-    res.json({ success: true, message: `${userIds.length}명의 시급이 설정되었습니다.` });
+    res.json({ success: true, message: `${userIds.length}명의 ?�급???�정?�었?�니??` });
   } catch (error) {
-    console.error("시급 일괄 설정 오류:", error);
-    res.status(500).json({ message: "시급 일괄 설정 실패" });
+    console.error("?�급 ?�괄 ?�정 ?�류:", error);
+    res.status(500).json({ message: "?�급 ?�괄 ?�정 ?�패" });
   }
 });
 
-// ==================== 식대 관리 (관리자) ====================
+// ==================== ?��? 관�?(관리자) ====================
 
-// 현재 식대 금액 조회
+// ?�재 ?��? 금액 조회
 router.get("/meal-cost/current", verifyToken, async (req, res) => {
   try {
     const today = new Date();
@@ -157,17 +157,17 @@ router.get("/meal-cost/current", verifyToken, async (req, res) => {
     }).sort({ effectiveDate: -1 });
 
     if (!currentMealCost) {
-      return res.json({ mealCost: 8500 }); // 기본값
+      return res.json({ mealCost: 8500 }); // 기본�?
     }
 
     res.json(currentMealCost);
   } catch (error) {
-    console.error("식대 조회 오류:", error);
-    res.status(500).json({ message: "식대 조회 실패" });
+    console.error("?��? 조회 ?�류:", error);
+    res.status(500).json({ message: "?��? 조회 ?�패" });
   }
 });
 
-// 특정 날짜의 식대 금액 조회
+// ?�정 ?�짜???��? 금액 조회
 router.get("/meal-cost/:date", verifyToken, async (req, res) => {
   try {
     const targetDate = new Date(req.params.date);
@@ -183,12 +183,12 @@ router.get("/meal-cost/:date", verifyToken, async (req, res) => {
 
     res.json({ mealCost: mealCost ? mealCost.mealCost : 8500 });
   } catch (error) {
-    console.error("식대 조회 오류:", error);
-    res.status(500).json({ message: "식대 조회 실패" });
+    console.error("?��? 조회 ?�류:", error);
+    res.status(500).json({ message: "?��? 조회 ?�패" });
   }
 });
 
-// 식대 금액 설정
+// ?��? 금액 ?�정
 router.post("/meal-cost", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { mealCost, effectiveDate, notes } = req.body;
@@ -196,7 +196,7 @@ router.post("/meal-cost", verifyToken, verifyAdmin, async (req, res) => {
     const newEffectiveDate = new Date(effectiveDate || new Date());
     newEffectiveDate.setHours(0, 0, 0, 0);
 
-    // 이전 식대 설정의 종료일 업데이트
+    // ?�전 ?��? ?�정??종료???�데?�트
     const previousMealCost = await MealCostHistory.findOne({
       effectiveDate: { $lt: newEffectiveDate },
       endDate: null
@@ -209,7 +209,7 @@ router.post("/meal-cost", verifyToken, verifyAdmin, async (req, res) => {
       await previousMealCost.save();
     }
 
-    // 새 식대 설정 생성
+    // ???��? ?�정 ?�성
     const newMealCost = await MealCostHistory.create({
       mealCost,
       effectiveDate: newEffectiveDate,
@@ -219,12 +219,12 @@ router.post("/meal-cost", verifyToken, verifyAdmin, async (req, res) => {
 
     res.status(201).json({ success: true, mealCost: newMealCost });
   } catch (error) {
-    console.error("식대 설정 오류:", error);
-    res.status(500).json({ message: "식대 설정 실패" });
+    console.error("?��? ?�정 ?�류:", error);
+    res.status(500).json({ message: "?��? ?�정 ?�패" });
   }
 });
 
-// 식대 이력 조회
+// ?��? ?�력 조회
 router.get("/meal-cost-history", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const history = await MealCostHistory.find()
@@ -234,14 +234,14 @@ router.get("/meal-cost-history", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json(history);
   } catch (error) {
-    console.error("식대 이력 조회 오류:", error);
-    res.status(500).json({ message: "식대 이력 조회 실패" });
+    console.error("?��? ?�력 조회 ?�류:", error);
+    res.status(500).json({ message: "?��? ?�력 조회 ?�패" });
   }
 });
 
-// ==================== 공휴일 관리 (관리자) ====================
+// ==================== 공휴??관�?(관리자) ====================
 
-// 공휴일 목록 조회
+// 공휴??목록 조회
 router.get("/holidays", verifyToken, async (req, res) => {
   try {
     const { year } = req.query;
@@ -259,12 +259,12 @@ router.get("/holidays", verifyToken, async (req, res) => {
 
     res.json(holidays);
   } catch (error) {
-    console.error("공휴일 조회 오류:", error);
-    res.status(500).json({ message: "공휴일 조회 실패" });
+    console.error("공휴??조회 ?�류:", error);
+    res.status(500).json({ message: "공휴??조회 ?�패" });
   }
 });
 
-// 공휴일 등록
+// 공휴???�록
 router.post("/holidays", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { date, name, type, isWorkingDay } = req.body;
@@ -272,30 +272,30 @@ router.post("/holidays", verifyToken, verifyAdmin, async (req, res) => {
     const holiday = await Holiday.create({
       date: new Date(date),
       name,
-      type: type || "법정공휴일",
+      type: type || "법정공휴??,
       isWorkingDay: isWorkingDay || false,
       registeredBy: req.user._id
     });
 
     res.status(201).json({ success: true, holiday });
   } catch (error) {
-    console.error("공휴일 등록 오류:", error);
-    res.status(500).json({ message: "공휴일 등록 실패" });
+    console.error("공휴???�록 ?�류:", error);
+    res.status(500).json({ message: "공휴???�록 ?�패" });
   }
 });
 
-// 공휴일 삭제
+// 공휴????��
 router.delete("/holidays/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     await Holiday.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "공휴일이 삭제되었습니다." });
+    res.json({ success: true, message: "공휴?�이 ??��?�었?�니??" });
   } catch (error) {
-    console.error("공휴일 삭제 오류:", error);
-    res.status(500).json({ message: "공휴일 삭제 실패" });
+    console.error("공휴????�� ?�류:", error);
+    res.status(500).json({ message: "공휴????�� ?�패" });
   }
 });
 
-// 특정 날짜가 공휴일인지 확인
+// ?�정 ?�짜가 공휴?�인지 ?�인
 router.get("/holidays/check/:date", verifyToken, async (req, res) => {
   try {
     const targetDate = new Date(req.params.date);
@@ -308,8 +308,8 @@ router.get("/holidays/check/:date", verifyToken, async (req, res) => {
       holiday: holiday || null
     });
   } catch (error) {
-    console.error("공휴일 확인 오류:", error);
-    res.status(500).json({ message: "공휴일 확인 실패" });
+    console.error("공휴???�인 ?�류:", error);
+    res.status(500).json({ message: "공휴???�인 ?�패" });
   }
 });
 

@@ -8,7 +8,7 @@ import path from 'path';
 
 const router = express.Router();
 
-// ==================== 파일 업로드 설정 ====================
+// ==================== ?�일 ?�로???�정 ====================
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -31,14 +31,14 @@ const upload = multer({
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error("이미지 파일 또는 PDF만 업로드 가능합니다."));
+      cb(new Error("?��?지 ?�일 ?�는 PDF�??�로??가?�합?�다."));
     }
   }
 });
 
-// ==================== 기물/기기 관리 ====================
+// ==================== 기물/기기 관�?====================
 
-// 매장별 기물/기기 목록 조회
+// 매장�?기물/기기 목록 조회
 router.get("/store/:storeId", verifyToken, async (req, res) => {
   try {
     const { equipmentType, status } = req.query;
@@ -63,12 +63,12 @@ router.get("/store/:storeId", verifyToken, async (req, res) => {
 
     res.json(equipment);
   } catch (error) {
-    console.error("기물 목록 조회 오류:", error);
-    res.status(500).json({ message: "기물 목록 조회 실패" });
+    console.error("기물 목록 조회 ?�류:", error);
+    res.status(500).json({ message: "기물 목록 조회 ?�패" });
   }
 });
 
-// 전체 기물/기기 목록 조회 (관리자용)
+// ?�체 기물/기기 목록 조회 (관리자??
 router.get("/all", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { equipmentType, status, needsInspection } = req.query;
@@ -83,7 +83,7 @@ router.get("/all", verifyToken, verifyAdmin, async (req, res) => {
       query.status = status;
     }
 
-    // 점검 필요 항목 필터
+    // ?��? ?�요 ??�� ?�터
     if (needsInspection === "true") {
       const today = new Date();
       query.nextInspectionDate = { $lte: today };
@@ -96,12 +96,12 @@ router.get("/all", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json(equipment);
   } catch (error) {
-    console.error("전체 기물 조회 오류:", error);
-    res.status(500).json({ message: "전체 기물 조회 실패" });
+    console.error("?�체 기물 조회 ?�류:", error);
+    res.status(500).json({ message: "?�체 기물 조회 ?�패" });
   }
 });
 
-// 기물/기기 상세 조회
+// 기물/기기 ?�세 조회
 router.get("/:id", verifyToken, async (req, res) => {
   try {
     const equipment = await Equipment.findById(req.params.id)
@@ -109,10 +109,10 @@ router.get("/:id", verifyToken, async (req, res) => {
       .populate("registeredBy", "name email");
 
     if (!equipment) {
-      return res.status(404).json({ message: "기물을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "기물??찾을 ???�습?�다." });
     }
 
-    // 이력 조회
+    // ?�력 조회
     const history = await EquipmentHistory.find({ equipment: req.params.id })
       .populate("performedBy", "name email")
       .sort({ actionDate: -1 })
@@ -123,12 +123,12 @@ router.get("/:id", verifyToken, async (req, res) => {
       history
     });
   } catch (error) {
-    console.error("기물 상세 조회 오류:", error);
-    res.status(500).json({ message: "기물 상세 조회 실패" });
+    console.error("기물 ?�세 조회 ?�류:", error);
+    res.status(500).json({ message: "기물 ?�세 조회 ?�패" });
   }
 });
 
-// 기물/기기 등록
+// 기물/기기 ?�록
 router.post("/", verifyToken, upload.array("images", 5), async (req, res) => {
   try {
     const {
@@ -147,10 +147,10 @@ router.post("/", verifyToken, upload.array("images", 5), async (req, res) => {
       inspectionInterval
     } = req.body;
 
-    // 업로드된 이미지 경로들
+    // ?�로?�된 ?��?지 경로??
     const images = req.files ? req.files.map(file => file.path) : [];
 
-    // 점검 주기가 있으면 다음 점검일 계산
+    // ?��? 주기가 ?�으�??�음 ?��???계산
     let nextInspectionDate = null;
     if (inspectionInterval) {
       nextInspectionDate = new Date();
@@ -167,7 +167,7 @@ router.post("/", verifyToken, upload.array("images", 5), async (req, res) => {
       purchaseDate,
       purchasePrice,
       warrantyEndDate,
-      status: status || "정상",
+      status: status || "?�상",
       location,
       images,
       description,
@@ -182,18 +182,18 @@ router.post("/", verifyToken, upload.array("images", 5), async (req, res) => {
 
     res.status(201).json({ success: true, equipment: populated });
   } catch (error) {
-    console.error("기물 등록 오류:", error);
-    res.status(500).json({ message: "기물 등록 실패" });
+    console.error("기물 ?�록 ?�류:", error);
+    res.status(500).json({ message: "기물 ?�록 ?�패" });
   }
 });
 
-// 기물/기기 수정
+// 기물/기기 ?�정
 router.put("/:id", verifyToken, upload.array("newImages", 5), async (req, res) => {
   try {
     const equipment = await Equipment.findById(req.params.id);
 
     if (!equipment) {
-      return res.status(404).json({ message: "기물을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "기물??찾을 ???�습?�다." });
     }
 
     const {
@@ -209,20 +209,20 @@ router.put("/:id", verifyToken, upload.array("newImages", 5), async (req, res) =
       location,
       description,
       inspectionInterval,
-      existingImages // 기존 이미지 중 유지할 것들
+      existingImages // 기존 ?��?지 �??��???것들
     } = req.body;
 
-    // 새로 업로드된 이미지
+    // ?�로 ?�로?�된 ?��?지
     const newImages = req.files ? req.files.map(file => file.path) : [];
 
-    // 기존 이미지 + 새 이미지
+    // 기존 ?��?지 + ???��?지
     let images = [];
     if (existingImages) {
       images = Array.isArray(existingImages) ? existingImages : [existingImages];
     }
     images = [...images, ...newImages];
 
-    // 업데이트
+    // ?�데?�트
     equipment.equipmentName = equipmentName || equipment.equipmentName;
     equipment.equipmentType = equipmentType || equipment.equipmentType;
     equipment.manufacturer = manufacturer || equipment.manufacturer;
@@ -236,12 +236,12 @@ router.put("/:id", verifyToken, upload.array("newImages", 5), async (req, res) =
     equipment.images = images;
     equipment.updatedAt = new Date();
 
-    // 상태 변경 시 이력 기록
+    // ?�태 변�????�력 기록
     if (status && status !== equipment.status) {
       await EquipmentHistory.create({
         equipment: equipment._id,
-        actionType: "기타",
-        description: `상태 변경: ${equipment.status} → ${status}`,
+        actionType: "기�?",
+        description: `?�태 변�? ${equipment.status} ??${status}`,
         previousStatus: equipment.status,
         newStatus: status,
         performedBy: req.user._id
@@ -250,7 +250,7 @@ router.put("/:id", verifyToken, upload.array("newImages", 5), async (req, res) =
       equipment.status = status;
     }
 
-    // 점검 주기 변경 시 다음 점검일 재계산
+    // ?��? 주기 변�????�음 ?��????�계??
     if (inspectionInterval && inspectionInterval !== equipment.inspectionInterval) {
       equipment.inspectionInterval = inspectionInterval;
       const nextDate = new Date();
@@ -265,34 +265,34 @@ router.put("/:id", verifyToken, upload.array("newImages", 5), async (req, res) =
 
     res.json({ success: true, equipment: updated });
   } catch (error) {
-    console.error("기물 수정 오류:", error);
-    res.status(500).json({ message: "기물 수정 실패" });
+    console.error("기물 ?�정 ?�류:", error);
+    res.status(500).json({ message: "기물 ?�정 ?�패" });
   }
 });
 
-// 기물/기기 삭제
+// 기물/기기 ??��
 router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const equipment = await Equipment.findById(req.params.id);
 
     if (!equipment) {
-      return res.status(404).json({ message: "기물을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "기물??찾을 ???�습?�다." });
     }
 
     equipment.isActive = false;
     equipment.updatedAt = new Date();
     await equipment.save();
 
-    res.json({ success: true, message: "기물이 삭제되었습니다." });
+    res.json({ success: true, message: "기물????��?�었?�니??" });
   } catch (error) {
-    console.error("기물 삭제 오류:", error);
-    res.status(500).json({ message: "기물 삭제 실패" });
+    console.error("기물 ??�� ?�류:", error);
+    res.status(500).json({ message: "기물 ??�� ?�패" });
   }
 });
 
-// ==================== 기물/기기 점검 및 이력 관리 ====================
+// ==================== 기물/기기 ?��? �??�력 관�?====================
 
-// 점검 기록 추가
+// ?��? 기록 추�?
 router.post("/:id/inspection", verifyToken, async (req, res) => {
   try {
     const { description, cost, newStatus } = req.body;
@@ -300,13 +300,13 @@ router.post("/:id/inspection", verifyToken, async (req, res) => {
     const equipment = await Equipment.findById(req.params.id);
 
     if (!equipment) {
-      return res.status(404).json({ message: "기물을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "기물??찾을 ???�습?�다." });
     }
 
-    // 점검 이력 추가
+    // ?��? ?�력 추�?
     await EquipmentHistory.create({
       equipment: equipment._id,
-      actionType: "점검",
+      actionType: "?��?",
       description,
       previousStatus: equipment.status,
       newStatus: newStatus || equipment.status,
@@ -315,14 +315,14 @@ router.post("/:id/inspection", verifyToken, async (req, res) => {
       actionDate: new Date()
     });
 
-    // 기물 상태 업데이트
+    // 기물 ?�태 ?�데?�트
     if (newStatus) {
       equipment.status = newStatus;
     }
 
     equipment.lastInspectionDate = new Date();
 
-    // 다음 점검일 계산
+    // ?�음 ?��???계산
     if (equipment.inspectionInterval) {
       const nextDate = new Date();
       nextDate.setDate(nextDate.getDate() + equipment.inspectionInterval);
@@ -331,14 +331,14 @@ router.post("/:id/inspection", verifyToken, async (req, res) => {
 
     await equipment.save();
 
-    res.json({ success: true, message: "점검이 기록되었습니다." });
+    res.json({ success: true, message: "?��???기록?�었?�니??" });
   } catch (error) {
-    console.error("점검 기록 오류:", error);
-    res.status(500).json({ message: "점검 기록 실패" });
+    console.error("?��? 기록 ?�류:", error);
+    res.status(500).json({ message: "?��? 기록 ?�패" });
   }
 });
 
-// 수리 기록 추가
+// ?�리 기록 추�?
 router.post("/:id/repair", verifyToken, upload.array("attachments", 3), async (req, res) => {
   try {
     const { description, cost, newStatus } = req.body;
@@ -346,36 +346,36 @@ router.post("/:id/repair", verifyToken, upload.array("attachments", 3), async (r
     const equipment = await Equipment.findById(req.params.id);
 
     if (!equipment) {
-      return res.status(404).json({ message: "기물을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "기물??찾을 ???�습?�다." });
     }
 
     const attachments = req.files ? req.files.map(file => file.path) : [];
 
-    // 수리 이력 추가
+    // ?�리 ?�력 추�?
     await EquipmentHistory.create({
       equipment: equipment._id,
-      actionType: "수리",
+      actionType: "?�리",
       description,
       previousStatus: equipment.status,
-      newStatus: newStatus || "정상",
+      newStatus: newStatus || "?�상",
       cost,
       attachments,
       performedBy: req.user._id,
       actionDate: new Date()
     });
 
-    // 기물 상태 업데이트
-    equipment.status = newStatus || "정상";
+    // 기물 ?�태 ?�데?�트
+    equipment.status = newStatus || "?�상";
     await equipment.save();
 
-    res.json({ success: true, message: "수리 내역이 기록되었습니다." });
+    res.json({ success: true, message: "?�리 ?�역??기록?�었?�니??" });
   } catch (error) {
-    console.error("수리 기록 오류:", error);
-    res.status(500).json({ message: "수리 기록 실패" });
+    console.error("?�리 기록 ?�류:", error);
+    res.status(500).json({ message: "?�리 기록 ?�패" });
   }
 });
 
-// 이력 조회
+// ?�력 조회
 router.get("/:id/history", verifyToken, async (req, res) => {
   try {
     const history = await EquipmentHistory.find({ equipment: req.params.id })
@@ -384,8 +384,8 @@ router.get("/:id/history", verifyToken, async (req, res) => {
 
     res.json(history);
   } catch (error) {
-    console.error("이력 조회 오류:", error);
-    res.status(500).json({ message: "이력 조회 실패" });
+    console.error("?�력 조회 ?�류:", error);
+    res.status(500).json({ message: "?�력 조회 ?�패" });
   }
 });
 

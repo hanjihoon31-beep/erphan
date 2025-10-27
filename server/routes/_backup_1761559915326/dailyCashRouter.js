@@ -8,9 +8,9 @@ import GiftCardType from "../models/GiftCardType.js"';
 
 const router = express.Router();
 
-// ==================== 일일 시재금 관리 ====================
+// ==================== ?�일 ?�재�?관�?====================
 
-// 특정 날짜의 시재금 조회
+// ?�정 ?�짜???�재�?조회
 router.get("/store/:storeId/date/:date", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.params;
@@ -28,13 +28,13 @@ router.get("/store/:storeId/date/:date", verifyToken, async (req, res) => {
       .populate("giftCards.type", "name")
       .populate("vouchers.voucherType", "category name");
 
-    // 없으면 자동 생성
+    // ?�으�??�동 ?�성
     if (!dailyCash) {
       dailyCash = await DailyCash.create({
         store: storeId,
         date: targetDate,
         user: req.user._id,
-        status: "작성중"
+        status: "?�성�?
       });
 
       await dailyCash.populate("store", "storeNumber storeName");
@@ -43,12 +43,12 @@ router.get("/store/:storeId/date/:date", verifyToken, async (req, res) => {
 
     res.json(dailyCash);
   } catch (error) {
-    console.error("시재금 조회 오류:", error);
-    res.status(500).json({ message: "시재금 조회 실패" });
+    console.error("?�재�?조회 ?�류:", error);
+    res.status(500).json({ message: "?�재�?조회 ?�패" });
   }
 });
 
-// 시재금 정보 업데이트 (입금, 상품권, 권면, 이월, 판매정보)
+// ?�재�??�보 ?�데?�트 (?�금, ?�품�? 권면, ?�월, ?�매?�보)
 router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.params;
@@ -70,29 +70,29 @@ router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
       });
     }
 
-    // 입금 정보 업데이트
+    // ?�금 ?�보 ?�데?�트
     if (deposit) {
       dailyCash.deposit = deposit;
       dailyCash.calculateDepositTotal();
     }
 
-    // 상품권 정보 업데이트
+    // ?�품�??�보 ?�데?�트
     if (giftCards) {
       dailyCash.giftCards = giftCards;
     }
 
-    // 권면 정보 업데이트 (패키지권, 티켓)
+    // 권면 ?�보 ?�데?�트 (?�키지�? ?�켓)
     if (vouchers) {
       dailyCash.vouchers = vouchers;
     }
 
-    // 이월 시재 정보 업데이트
+    // ?�월 ?�재 ?�보 ?�데?�트
     if (carryOver) {
       dailyCash.carryOver = carryOver;
       dailyCash.calculateCarryOverTotal();
     }
 
-    // 판매 정보 업데이트
+    // ?�매 ?�보 ?�데?�트
     if (sales) {
       dailyCash.sales = sales;
     }
@@ -102,7 +102,7 @@ router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
       dailyCash.note = note;
     }
 
-    dailyCash.status = "완료";
+    dailyCash.status = "?�료";
     await dailyCash.save();
 
     await dailyCash.populate("store", "storeNumber storeName");
@@ -112,12 +112,12 @@ router.put("/store/:storeId/date/:date", verifyToken, async (req, res) => {
 
     res.json({ success: true, dailyCash });
   } catch (error) {
-    console.error("시재금 업데이트 오류:", error);
-    res.status(500).json({ message: "시재금 업데이트 실패" });
+    console.error("?�재�??�데?�트 ?�류:", error);
+    res.status(500).json({ message: "?�재�??�데?�트 ?�패" });
   }
 });
 
-// 다음날 아침 시재금 확인
+// ?�음???�침 ?�재�??�인
 router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, res) => {
   try {
     const { storeId, date } = req.params;
@@ -126,7 +126,7 @@ router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, 
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
-    // 전날 데이터 조회 (이월 시재와 비교하기 위해)
+    // ?�날 ?�이??조회 (?�월 ?�재?� 비교?�기 ?�해)
     const previousDate = new Date(targetDate);
     previousDate.setDate(previousDate.getDate() - 1);
 
@@ -148,7 +148,7 @@ router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, 
       });
     }
 
-    // 아침 확인 정보 업데이트
+    // ?�침 ?�인 ?�보 ?�데?�트
     dailyCash.morningCheck = {
       ...morningCheck,
       checkedBy: req.user._id,
@@ -156,17 +156,17 @@ router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, 
     };
     dailyCash.calculateMorningCheckTotal();
 
-    // 전날 이월 시재와 비교하여 차이 확인
+    // ?�날 ?�월 ?�재?� 비교?�여 차이 ?�인
     if (previousDailyCash && previousDailyCash.carryOver.total > 0) {
       const diff = dailyCash.morningCheck.total - previousDailyCash.carryOver.total;
       dailyCash.discrepancy.amount = diff;
       dailyCash.discrepancy.hasDiscrepancy = diff !== 0;
 
       if (diff !== 0) {
-        dailyCash.discrepancy.note = `전날 이월: ${previousDailyCash.carryOver.total.toLocaleString()}원, 실제: ${dailyCash.morningCheck.total.toLocaleString()}원, 차이: ${diff.toLocaleString()}원`;
+        dailyCash.discrepancy.note = `?�날 ?�월: ${previousDailyCash.carryOver.total.toLocaleString()}?? ?�제: ${dailyCash.morningCheck.total.toLocaleString()}?? 차이: ${diff.toLocaleString()}??;
       }
     } else {
-      // 전날 데이터 없으면 차이 없음으로 처리
+      // ?�날 ?�이???�으�?차이 ?�음?�로 처리
       dailyCash.discrepancy.hasDiscrepancy = false;
       dailyCash.discrepancy.amount = 0;
     }
@@ -187,12 +187,12 @@ router.put("/store/:storeId/date/:date/morning-check", verifyToken, async (req, 
       } : null
     });
   } catch (error) {
-    console.error("아침 시재금 확인 오류:", error);
-    res.status(500).json({ message: "아침 시재금 확인 실패" });
+    console.error("?�침 ?�재�??�인 ?�류:", error);
+    res.status(500).json({ message: "?�침 ?�재�??�인 ?�패" });
   }
 });
 
-// 시재금 차이가 있는 내역 조회 (관리자)
+// ?�재�?차이가 ?�는 ?�역 조회 (관리자)
 router.get("/discrepancies", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeId, startDate, endDate } = req.query;
@@ -218,7 +218,7 @@ router.get("/discrepancies", verifyToken, verifyAdmin, async (req, res) => {
       .sort({ date: -1 })
       .limit(100);
 
-    // 각 차이 건에 대해 전날 근무자 정보도 포함
+    // �?차이 건에 ?�???�날 근무???�보???�함
     const enrichedDiscrepancies = await Promise.all(
       discrepancies.map(async (item) => {
         const previousDate = new Date(item.date);
@@ -238,12 +238,12 @@ router.get("/discrepancies", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json(enrichedDiscrepancies);
   } catch (error) {
-    console.error("시재금 차이 내역 조회 오류:", error);
-    res.status(500).json({ message: "시재금 차이 내역 조회 실패" });
+    console.error("?�재�?차이 ?�역 조회 ?�류:", error);
+    res.status(500).json({ message: "?�재�?차이 ?�역 조회 ?�패" });
   }
 });
 
-// 기간별 시재금 내역 조회
+// 기간�??�재�??�역 조회
 router.get("/history", verifyToken, async (req, res) => {
   try {
     const { storeId, startDate, endDate } = req.query;
@@ -272,14 +272,14 @@ router.get("/history", verifyToken, async (req, res) => {
 
     res.json(history);
   } catch (error) {
-    console.error("시재금 내역 조회 오류:", error);
-    res.status(500).json({ message: "시재금 내역 조회 실패" });
+    console.error("?�재�??�역 조회 ?�류:", error);
+    res.status(500).json({ message: "?�재�??�역 조회 ?�패" });
   }
 });
 
-// ==================== 시재금 청구 관리 ====================
+// ==================== ?�재�?�?�� 관�?====================
 
-// 시재금 청구 등록
+// ?�재�?�?�� ?�록
 router.post("/request", verifyToken, async (req, res) => {
   try {
     const { storeId, date, items, note } = req.body;
@@ -300,19 +300,19 @@ router.post("/request", verifyToken, async (req, res) => {
 
     res.status(201).json({ success: true, request });
   } catch (error) {
-    console.error("시재금 청구 등록 오류:", error);
+    console.error("?�재�?�?�� ?�록 ?�류:", error);
 
-    // 유효성 검증 오류 처리
+    // ?�효??검�??�류 처리
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ message: messages.join(", ") });
     }
 
-    res.status(500).json({ message: "시재금 청구 등록 실패" });
+    res.status(500).json({ message: "?�재�?�?�� ?�록 ?�패" });
   }
 });
 
-// 시재금 청구 목록 조회
+// ?�재�?�?�� 목록 조회
 router.get("/requests", verifyToken, async (req, res) => {
   try {
     const { storeId, status } = req.query;
@@ -336,25 +336,25 @@ router.get("/requests", verifyToken, async (req, res) => {
 
     res.json(requests);
   } catch (error) {
-    console.error("시재금 청구 목록 조회 오류:", error);
-    res.status(500).json({ message: "시재금 청구 목록 조회 실패" });
+    console.error("?�재�?�?�� 목록 조회 ?�류:", error);
+    res.status(500).json({ message: "?�재�?�?�� 목록 조회 ?�패" });
   }
 });
 
-// 시재금 청구 승인 (관리자)
+// ?�재�?�?�� ?�인 (관리자)
 router.patch("/request/:id/approve", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const request = await CashRequest.findById(req.params.id);
 
     if (!request) {
-      return res.status(404).json({ message: "청구 내역을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "�?�� ?�역??찾을 ???�습?�다." });
     }
 
-    if (request.status !== "대기") {
-      return res.status(400).json({ message: "이미 처리된 청구입니다." });
+    if (request.status !== "?��?) {
+      return res.status(400).json({ message: "?��? 처리??�?��?�니??" });
     }
 
-    request.status = "승인";
+    request.status = "?�인";
     request.approvedBy = req.user._id;
     request.approvedAt = new Date();
 
@@ -366,12 +366,12 @@ router.patch("/request/:id/approve", verifyToken, verifyAdmin, async (req, res) 
 
     res.json({ success: true, request });
   } catch (error) {
-    console.error("시재금 청구 승인 오류:", error);
-    res.status(500).json({ message: "시재금 청구 승인 실패" });
+    console.error("?�재�?�?�� ?�인 ?�류:", error);
+    res.status(500).json({ message: "?�재�?�?�� ?�인 ?�패" });
   }
 });
 
-// 시재금 청구 거부 (관리자)
+// ?�재�?�?�� 거�? (관리자)
 router.patch("/request/:id/reject", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { rejectionReason } = req.body;
@@ -379,14 +379,14 @@ router.patch("/request/:id/reject", verifyToken, verifyAdmin, async (req, res) =
     const request = await CashRequest.findById(req.params.id);
 
     if (!request) {
-      return res.status(404).json({ message: "청구 내역을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "�?�� ?�역??찾을 ???�습?�다." });
     }
 
-    if (request.status !== "대기") {
-      return res.status(400).json({ message: "이미 처리된 청구입니다." });
+    if (request.status !== "?��?) {
+      return res.status(400).json({ message: "?��? 처리??�?��?�니??" });
     }
 
-    request.status = "거부";
+    request.status = "거�?";
     request.approvedBy = req.user._id;
     request.approvedAt = new Date();
     request.rejectionReason = rejectionReason;
@@ -399,8 +399,8 @@ router.patch("/request/:id/reject", verifyToken, verifyAdmin, async (req, res) =
 
     res.json({ success: true, request });
   } catch (error) {
-    console.error("시재금 청구 거부 오류:", error);
-    res.status(500).json({ message: "시재금 청구 거부 실패" });
+    console.error("?�재�?�?�� 거�? ?�류:", error);
+    res.status(500).json({ message: "?�재�?�?�� 거�? ?�패" });
   }
 });
 

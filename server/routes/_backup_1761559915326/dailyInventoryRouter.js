@@ -8,9 +8,9 @@ import Product from "../models/Product.js";
 
 const router = express.Router();
 
-// ==================== 일일 재고 템플릿 관리 (관리자용) ====================
+// ==================== ?�일 ?�고 ?�플�?관�?(관리자?? ====================
 
-// 매장별 재고 템플릿 조회
+// 매장�??�고 ?�플�?조회
 router.get("/templates/:storeId", verifyToken, async (req, res) => {
   try {
     const templates = await DailyInventoryTemplate.find({
@@ -23,12 +23,12 @@ router.get("/templates/:storeId", verifyToken, async (req, res) => {
 
     res.json(templates);
   } catch (error) {
-    console.error("템플릿 조회 오류:", error);
-    res.status(500).json({ message: "템플릿 조회 실패" });
+    console.error("?�플�?조회 ?�류:", error);
+    res.status(500).json({ message: "?�플�?조회 ?�패" });
   }
 });
 
-// 재고 템플릿 생성 (관리자 전용)
+// ?�고 ?�플�??�성 (관리자 ?�용)
 router.post("/templates", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeId, productId, displayOrder } = req.body;
@@ -39,7 +39,7 @@ router.post("/templates", verifyToken, verifyAdmin, async (req, res) => {
     });
 
     if (existing) {
-      return res.status(400).json({ message: "이미 등록된 제품입니다." });
+      return res.status(400).json({ message: "?��? ?�록???�품?�니??" });
     }
 
     const template = await DailyInventoryTemplate.create({
@@ -55,18 +55,18 @@ router.post("/templates", verifyToken, verifyAdmin, async (req, res) => {
 
     res.status(201).json({ success: true, template: populated });
   } catch (error) {
-    console.error("템플릿 생성 오류:", error);
-    res.status(500).json({ message: "템플릿 생성 실패" });
+    console.error("?�플�??�성 ?�류:", error);
+    res.status(500).json({ message: "?�플�??�성 ?�패" });
   }
 });
 
-// 재고 템플릿 일괄 생성 (관리자 전용)
+// ?�고 ?�플�??�괄 ?�성 (관리자 ?�용)
 router.post("/templates/bulk", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeId, productIds } = req.body;
 
     if (!Array.isArray(productIds) || productIds.length === 0) {
-      return res.status(400).json({ message: "제품 목록이 필요합니다." });
+      return res.status(400).json({ message: "?�품 목록???�요?�니??" });
     }
 
     const templates = [];
@@ -92,26 +92,26 @@ router.post("/templates/bulk", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json({
       success: true,
-      message: `${templates.length}개 템플릿이 생성되었습니다.`
+      message: `${templates.length}�??�플릿이 ?�성?�었?�니??`
     });
   } catch (error) {
-    console.error("템플릿 일괄 생성 오류:", error);
-    res.status(500).json({ message: "템플릿 일괄 생성 실패" });
+    console.error("?�플�??�괄 ?�성 ?�류:", error);
+    res.status(500).json({ message: "?�플�??�괄 ?�성 ?�패" });
   }
 });
 
-// 재고 템플릿 삭제
+// ?�고 ?�플�???��
 router.delete("/templates/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     await DailyInventoryTemplate.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "템플릿이 삭제되었습니다." });
+    res.json({ success: true, message: "?�플릿이 ??��?�었?�니??" });
   } catch (error) {
-    console.error("템플릿 삭제 오류:", error);
-    res.status(500).json({ message: "템플릿 삭제 실패" });
+    console.error("?�플�???�� ?�류:", error);
+    res.status(500).json({ message: "?�플�???�� ?�패" });
   }
 });
 
-// ==================== 일일 재고 생성 (자동/수동) ====================
+// ==================== ?�일 ?�고 ?�성 (?�동/?�동) ====================
 
 router.post("/generate", verifyToken, async (req, res) => {
   try {
@@ -125,7 +125,7 @@ router.post("/generate", verifyToken, async (req, res) => {
     });
 
     if (existingCount > 0) {
-      return res.status(400).json({ message: "이미 생성된 재고 서식입니다." });
+      return res.status(400).json({ message: "?��? ?�성???�고 ?�식?�니??" });
     }
 
     const templates = await DailyInventoryTemplate.find({
@@ -134,7 +134,7 @@ router.post("/generate", verifyToken, async (req, res) => {
     }).sort({ displayOrder: 1 });
 
     if (templates.length === 0) {
-      return res.status(400).json({ message: "재고 템플릿이 설정되지 않았습니다." });
+      return res.status(400).json({ message: "?�고 ?�플릿이 ?�정?��? ?�았?�니??" });
     }
 
     const previousDate = new Date(targetDate);
@@ -155,23 +155,23 @@ router.post("/generate", verifyToken, async (req, res) => {
       product: template.product,
       date: targetDate,
       previousClosingStock: previousStockMap[template.product.toString()] || 0,
-      status: "대기"
+      status: "?��?
     }));
 
     await DailyInventory.insertMany(dailyInventories);
 
     res.json({
       success: true,
-      message: `${dailyInventories.length}개 재고 항목이 생성되었습니다.`,
+      message: `${dailyInventories.length}�??�고 ??��???�성?�었?�니??`,
       count: dailyInventories.length
     });
   } catch (error) {
-    console.error("재고 서식 생성 오류:", error);
-    res.status(500).json({ message: "재고 서식 생성 실패" });
+    console.error("?�고 ?�식 ?�성 ?�류:", error);
+    res.status(500).json({ message: "?�고 ?�식 ?�성 ?�패" });
   }
 });
 
-// ==================== 일일 재고 조회 ====================
+// ==================== ?�일 ?�고 조회 ====================
 
 router.get("/:storeId/:date", verifyToken, async (req, res) => {
   try {
@@ -190,16 +190,16 @@ router.get("/:storeId/:date", verifyToken, async (req, res) => {
 
     res.json(dailyInventories);
   } catch (error) {
-    console.error("일일 재고 조회 오류:", error);
-    res.status(500).json({ message: "일일 재고 조회 실패" });
+    console.error("?�일 ?�고 조회 ?�류:", error);
+    res.status(500).json({ message: "?�일 ?�고 조회 ?�패" });
   }
 });
 
-// 승인 대기 중인 재고 목록 조회 (관리자용)
+// ?�인 ?��?중인 ?�고 목록 조회 (관리자??
 router.get("/pending/all", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const pendingInventories = await DailyInventory.find({
-      status: "승인요청"
+      status: "?�인?�청"
     })
       .populate("store", "storeNumber storeName")
       .populate("product", "productName unit")
@@ -208,12 +208,12 @@ router.get("/pending/all", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json(pendingInventories);
   } catch (error) {
-    console.error("대기 목록 조회 오류:", error);
-    res.status(500).json({ message: "대기 목록 조회 실패" });
+    console.error("?��?목록 조회 ?�류:", error);
+    res.status(500).json({ message: "?��?목록 조회 ?�패" });
   }
 });
 
-// ==================== 일일 재고 수정 ====================
+// ==================== ?�일 ?�고 ?�정 ====================
 
 router.put("/:id", verifyToken, async (req, res) => {
   try {
@@ -229,7 +229,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     const dailyInv = await DailyInventory.findById(req.params.id);
 
     if (!dailyInv) {
-      return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "?�고 ??��??찾을 ???�습?�다." });
     }
 
     let discrepancy = 0;
@@ -246,7 +246,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     dailyInv.notes = notes || dailyInv.notes;
     dailyInv.updatedAt = new Date();
 
-    if (dailyInv.status === "대기") dailyInv.status = "작성중";
+    if (dailyInv.status === "?��?) dailyInv.status = "?�성�?;
 
     await dailyInv.save();
 
@@ -256,12 +256,12 @@ router.put("/:id", verifyToken, async (req, res) => {
 
     res.json({ success: true, dailyInventory: updated });
   } catch (error) {
-    console.error("재고 수정 오류:", error);
-    res.status(500).json({ message: "재고 수정 실패" });
+    console.error("?�고 ?�정 ?�류:", error);
+    res.status(500).json({ message: "?�고 ?�정 ?�패" });
   }
 });
 
-// ==================== 일괄 승인 요청 ====================
+// ==================== ?�괄 ?�인 ?�청 ====================
 
 router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
   try {
@@ -272,7 +272,7 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
     const inventories = await DailyInventory.find({
       store: storeId,
       date: targetDate,
-      status: { $in: ["대기", "작성중"] }
+      status: { $in: ["?��?, "?�성�?] }
     });
 
     const invalidItems = inventories.filter(inv =>
@@ -281,7 +281,7 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
 
     if (invalidItems.length > 0) {
       return res.status(400).json({
-        message: `${invalidItems.length}개 항목에 재고 차이 사유가 필요합니다.`
+        message: `${invalidItems.length}�???��???�고 차이 ?�유가 ?�요?�니??`
       });
     }
 
@@ -289,10 +289,10 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
       {
         store: storeId,
         date: targetDate,
-        status: { $in: ["대기", "작성중"] }
+        status: { $in: ["?��?, "?�성�?] }
       },
       {
-        status: "승인요청",
+        status: "?�인?�청",
         submittedBy: req.user._id,
         submittedAt: new Date()
       }
@@ -300,53 +300,53 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: `${inventories.length}개 항목이 승인 요청되었습니다.`
+      message: `${inventories.length}�???��???�인 ?�청?�었?�니??`
     });
   } catch (error) {
-    console.error("일괄 승인 요청 오류:", error);
-    res.status(500).json({ message: "일괄 승인 요청 실패" });
+    console.error("?�괄 ?�인 ?�청 ?�류:", error);
+    res.status(500).json({ message: "?�괄 ?�인 ?�청 ?�패" });
   }
 });
 
-// ==================== 일괄 승인/거부 ====================
+// ==================== ?�괄 ?�인/거�? ====================
 
 router.put("/:id/approve", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const dailyInv = await DailyInventory.findById(req.params.id);
-    if (!dailyInv) return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
-    if (dailyInv.status !== "승인요청") return res.status(400).json({ message: "승인 요청 상태가 아닙니다." });
+    if (!dailyInv) return res.status(404).json({ message: "?�고 ??��??찾을 ???�습?�다." });
+    if (dailyInv.status !== "?�인?�청") return res.status(400).json({ message: "?�인 ?�청 ?�태가 ?�닙?�다." });
 
-    dailyInv.status = "승인";
+    dailyInv.status = "?�인";
     dailyInv.approvedBy = req.user._id;
     dailyInv.approvedAt = new Date();
     await dailyInv.save();
 
-    res.json({ success: true, message: "재고가 승인되었습니다." });
+    res.json({ success: true, message: "?�고가 ?�인?�었?�니??" });
   } catch (error) {
-    console.error("재고 승인 오류:", error);
-    res.status(500).json({ message: "재고 승인 실패" });
+    console.error("?�고 ?�인 ?�류:", error);
+    res.status(500).json({ message: "?�고 ?�인 ?�패" });
   }
 });
 
 router.put("/:id/reject", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { rejectionReason } = req.body;
-    if (!rejectionReason) return res.status(400).json({ message: "거부 사유를 입력해주세요." });
+    if (!rejectionReason) return res.status(400).json({ message: "거�? ?�유�??�력?�주?�요." });
 
     const dailyInv = await DailyInventory.findById(req.params.id);
-    if (!dailyInv) return res.status(404).json({ message: "재고 항목을 찾을 수 없습니다." });
-    if (dailyInv.status !== "승인요청") return res.status(400).json({ message: "승인 요청 상태가 아닙니다." });
+    if (!dailyInv) return res.status(404).json({ message: "?�고 ??��??찾을 ???�습?�다." });
+    if (dailyInv.status !== "?�인?�청") return res.status(400).json({ message: "?�인 ?�청 ?�태가 ?�닙?�다." });
 
-    dailyInv.status = "거부";
+    dailyInv.status = "거�?";
     dailyInv.rejectionReason = rejectionReason;
     dailyInv.approvedBy = req.user._id;
     dailyInv.approvedAt = new Date();
     await dailyInv.save();
 
-    res.json({ success: true, message: "재고가 거부되었습니다." });
+    res.json({ success: true, message: "?�고가 거�??�었?�니??" });
   } catch (error) {
-    console.error("재고 거부 오류:", error);
-    res.status(500).json({ message: "재고 거부 실패" });
+    console.error("?�고 거�? ?�류:", error);
+    res.status(500).json({ message: "?�고 거�? ?�패" });
   }
 });
 
@@ -360,10 +360,10 @@ router.post("/approve-all/:storeId/:date", verifyToken, verifyAdmin, async (req,
       {
         store: storeId,
         date: targetDate,
-        status: "승인요청"
+        status: "?�인?�청"
       },
       {
-        status: "승인",
+        status: "?�인",
         approvedBy: req.user._id,
         approvedAt: new Date()
       }
@@ -371,11 +371,11 @@ router.post("/approve-all/:storeId/:date", verifyToken, verifyAdmin, async (req,
 
     res.json({
       success: true,
-      message: `${result.modifiedCount}개 항목이 승인되었습니다.`
+      message: `${result.modifiedCount}�???��???�인?�었?�니??`
     });
   } catch (error) {
-    console.error("일괄 승인 오류:", error);
-    res.status(500).json({ message: "일괄 승인 실패" });
+    console.error("?�괄 ?�인 ?�류:", error);
+    res.status(500).json({ message: "?�괄 ?�인 ?�패" });
   }
 });
 

@@ -8,29 +8,29 @@ import MealCostHistory from '../models/MealCostHistory';
 
 const router = express.Router();
 
-// ==================== 근태 수정 요청 (근무자) ====================
+// ==================== 근태 ?�정 ?�청 (근무?? ====================
 
-// 근태 수정 요청 생성
+// 근태 ?�정 ?�청 ?�성
 router.post("/modification-request", verifyToken, async (req, res) => {
   try {
     const { attendanceId, modifications, reason } = req.body;
 
     if (!reason) {
-      return res.status(400).json({ message: "수정 사유를 입력해주세요." });
+      return res.status(400).json({ message: "?�정 ?�유�??�력?�주?�요." });
     }
 
     const attendance = await Attendance.findById(attendanceId);
 
     if (!attendance) {
-      return res.status(404).json({ message: "근태 기록을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "근태 기록??찾을 ???�습?�다." });
     }
 
-    // 본인 근태만 수정 요청 가능
+    // 본인 근태�??�정 ?�청 가??
     if (attendance.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "권한이 없습니다." });
+      return res.status(403).json({ message: "권한???�습?�다." });
     }
 
-    // 수정 요청 생성
+    // ?�정 ?�청 ?�성
     const modRequest = await AttendanceModificationRequest.create({
       attendance: attendanceId,
       requestedBy: req.user._id,
@@ -44,12 +44,12 @@ router.post("/modification-request", verifyToken, async (req, res) => {
 
     res.status(201).json({ success: true, request: populated });
   } catch (error) {
-    console.error("수정 요청 생성 오류:", error);
-    res.status(500).json({ message: "수정 요청 생성 실패" });
+    console.error("?�정 ?�청 ?�성 ?�류:", error);
+    res.status(500).json({ message: "?�정 ?�청 ?�성 ?�패" });
   }
 });
 
-// 본인 수정 요청 목록 조회
+// 본인 ?�정 ?�청 목록 조회
 router.get("/my-modification-requests", verifyToken, async (req, res) => {
   try {
     const requests = await AttendanceModificationRequest.find({
@@ -61,18 +61,18 @@ router.get("/my-modification-requests", verifyToken, async (req, res) => {
 
     res.json(requests);
   } catch (error) {
-    console.error("수정 요청 조회 오류:", error);
-    res.status(500).json({ message: "수정 요청 조회 실패" });
+    console.error("?�정 ?�청 조회 ?�류:", error);
+    res.status(500).json({ message: "?�정 ?�청 조회 ?�패" });
   }
 });
 
-// ==================== 근태 수정 요청 승인/거부 (관리자) ====================
+// ==================== 근태 ?�정 ?�청 ?�인/거�? (관리자) ====================
 
-// 대기 중인 수정 요청 목록 조회
+// ?��?중인 ?�정 ?�청 목록 조회
 router.get("/modification-requests/pending", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const requests = await AttendanceModificationRequest.find({
-      status: "대기"
+      status: "?��?
     })
       .populate({
         path: "attendance",
@@ -86,29 +86,29 @@ router.get("/modification-requests/pending", verifyToken, verifyAdmin, async (re
 
     res.json(requests);
   } catch (error) {
-    console.error("대기 요청 조회 오류:", error);
-    res.status(500).json({ message: "대기 요청 조회 실패" });
+    console.error("?��??�청 조회 ?�류:", error);
+    res.status(500).json({ message: "?��??�청 조회 ?�패" });
   }
 });
 
-// 수정 요청 승인
+// ?�정 ?�청 ?�인
 router.put("/modification-requests/:id/approve", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const modRequest = await AttendanceModificationRequest.findById(req.params.id);
 
     if (!modRequest) {
-      return res.status(404).json({ message: "수정 요청을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "?�정 ?�청??찾을 ???�습?�다." });
     }
 
-    if (modRequest.status !== "대기") {
-      return res.status(400).json({ message: "이미 처리된 요청입니다." });
+    if (modRequest.status !== "?��?) {
+      return res.status(400).json({ message: "?��? 처리???�청?�니??" });
     }
 
-    // 근태 정보 수정
+    // 근태 ?�보 ?�정
     const attendance = await Attendance.findById(modRequest.attendance);
 
     if (!attendance) {
-      return res.status(404).json({ message: "근태 기록을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "근태 기록??찾을 ???�습?�다." });
     }
 
     const { modifications } = modRequest;
@@ -135,61 +135,61 @@ router.put("/modification-requests/:id/approve", verifyToken, verifyAdmin, async
     attendance.lastModifiedBy = req.user._id;
     attendance.updatedAt = new Date();
 
-    // 근무시간 재계산
+    // 근무?�간 ?�계??
     if (attendance.checkInTime && attendance.checkOutTime) {
       attendance.calculateWorkTime();
     }
 
     await attendance.save();
 
-    // 요청 상태 업데이트
-    modRequest.status = "승인";
+    // ?�청 ?�태 ?�데?�트
+    modRequest.status = "?�인";
     modRequest.reviewedBy = req.user._id;
     modRequest.reviewedAt = new Date();
     await modRequest.save();
 
-    res.json({ success: true, message: "수정 요청이 승인되었습니다." });
+    res.json({ success: true, message: "?�정 ?�청???�인?�었?�니??" });
   } catch (error) {
-    console.error("수정 요청 승인 오류:", error);
-    res.status(500).json({ message: "수정 요청 승인 실패" });
+    console.error("?�정 ?�청 ?�인 ?�류:", error);
+    res.status(500).json({ message: "?�정 ?�청 ?�인 ?�패" });
   }
 });
 
-// 수정 요청 거부
+// ?�정 ?�청 거�?
 router.put("/modification-requests/:id/reject", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { rejectionReason } = req.body;
 
     if (!rejectionReason) {
-      return res.status(400).json({ message: "거부 사유를 입력해주세요." });
+      return res.status(400).json({ message: "거�? ?�유�??�력?�주?�요." });
     }
 
     const modRequest = await AttendanceModificationRequest.findById(req.params.id);
 
     if (!modRequest) {
-      return res.status(404).json({ message: "수정 요청을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "?�정 ?�청??찾을 ???�습?�다." });
     }
 
-    if (modRequest.status !== "대기") {
-      return res.status(400).json({ message: "이미 처리된 요청입니다." });
+    if (modRequest.status !== "?��?) {
+      return res.status(400).json({ message: "?��? 처리???�청?�니??" });
     }
 
-    modRequest.status = "거부";
+    modRequest.status = "거�?";
     modRequest.rejectionReason = rejectionReason;
     modRequest.reviewedBy = req.user._id;
     modRequest.reviewedAt = new Date();
     await modRequest.save();
 
-    res.json({ success: true, message: "수정 요청이 거부되었습니다." });
+    res.json({ success: true, message: "?�정 ?�청??거�??�었?�니??" });
   } catch (error) {
-    console.error("수정 요청 거부 오류:", error);
-    res.status(500).json({ message: "수정 요청 거부 실패" });
+    console.error("?�정 ?�청 거�? ?�류:", error);
+    res.status(500).json({ message: "?�정 ?�청 거�? ?�패" });
   }
 });
 
 // ==================== 급여 계산 ====================
 
-// 특정 사용자의 월간 급여 계산
+// ?�정 ?�용?�의 ?�간 급여 계산
 router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
   try {
     const { userId, yearMonth } = req.params; // yearMonth: "2025-10"
@@ -198,7 +198,7 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    // 해당 월의 근태 기록 조회
+    // ?�당 ?�의 근태 기록 조회
     const attendances = await Attendance.find({
       user: userId,
       date: { $gte: startDate, $lte: endDate }
@@ -238,7 +238,7 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
         mealCount: att.mealCount + att.additionalMealCount
       };
 
-      // 모든 근무시간을 normalWorkMinutes로 통합
+      // 모든 근무?�간??normalWorkMinutes�??�합
       breakdown.normalWorkMinutes += att.actualWorkMinutes;
 
       breakdown.overtimeMinutes += att.overtimeMinutes || 0;
@@ -250,7 +250,7 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
       breakdown.details.push(detail);
     }
 
-    // 시급 조회 (해당 월 기준)
+    // ?�급 조회 (?�당 ??기�?)
     const wageSettings = await WageSettings.findOne({
       user: userId,
       effectiveDate: { $lte: endDate }
@@ -264,7 +264,7 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
     const additionalPay = Math.floor((breakdown.additionalMinutes / 60) * hourlyWage);
     const incentivePay = Math.floor((breakdown.incentiveMinutes / 60) * hourlyWage);
 
-    // 식대 계산 (날짜별 식대 금액 적용)
+    // ?��? 계산 (?�짜�??��? 금액 ?�용)
     let totalMealCost = 0;
     for (const att of attendances) {
       const mealCost = await MealCostHistory.findOne({
@@ -300,12 +300,12 @@ router.get("/calculate/:userId/:yearMonth", verifyToken, async (req, res) => {
       attendanceCount: attendances.length
     });
   } catch (error) {
-    console.error("급여 계산 오류:", error);
-    res.status(500).json({ message: "급여 계산 실패" });
+    console.error("급여 계산 ?�류:", error);
+    res.status(500).json({ message: "급여 계산 ?�패" });
   }
 });
 
-// 전체 직원 월간 급여 계산 (관리자)
+// ?�체 직원 ?�간 급여 계산 (관리자)
 router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { yearMonth } = req.params;
@@ -314,7 +314,7 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    // 해당 월에 근무한 모든 사용자 조회
+    // ?�당 ?�에 근무??모든 ?�용??조회
     const attendances = await Attendance.find({
       date: { $gte: startDate, $lte: endDate }
     }).populate("user", "name email");
@@ -336,7 +336,7 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
       };
 
       for (const att of userAttendances) {
-        // 모든 근무시간을 normalWorkMinutes로 통합
+        // 모든 근무?�간??normalWorkMinutes�??�합
         breakdown.normalWorkMinutes += att.actualWorkMinutes;
 
         breakdown.overtimeMinutes += att.overtimeMinutes || 0;
@@ -346,7 +346,7 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
         breakdown.annualLeaveAllowance += att.annualLeaveAllowance || 0;
       }
 
-      // 시급 조회
+      // ?�급 조회
       const wageSettings = await WageSettings.findOne({
         user: userId,
         effectiveDate: { $lte: endDate }
@@ -359,7 +359,7 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
       const additionalPay = Math.floor((breakdown.additionalMinutes / 60) * hourlyWage);
       const incentivePay = Math.floor((breakdown.incentiveMinutes / 60) * hourlyWage);
 
-      // 식대 계산
+      // ?��? 계산
       let totalMealCost = 0;
       for (const att of userAttendances) {
         const mealCost = await MealCostHistory.findOne({
@@ -397,8 +397,8 @@ router.get("/calculate-all/:yearMonth", verifyToken, verifyAdmin, async (req, re
       grandTotal: payrolls.reduce((sum, p) => sum + p.totalCompensation, 0)
     });
   } catch (error) {
-    console.error("전체 급여 계산 오류:", error);
-    res.status(500).json({ message: "전체 급여 계산 실패" });
+    console.error("?�체 급여 계산 ?�류:", error);
+    res.status(500).json({ message: "?�체 급여 계산 ?�패" });
   }
 });
 

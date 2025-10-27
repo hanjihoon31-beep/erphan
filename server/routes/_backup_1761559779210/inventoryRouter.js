@@ -10,27 +10,27 @@ import StockTransfer from "../models/StockTransfer.js";
 
 const router = express.Router();
 
-// ==================== 매장 관리 ====================
+// ==================== 매장 관�?====================
 
-// 전체 매장 목록 조회
+// ?�체 매장 목록 조회
 router.get("/stores", verifyToken, async (req, res) => {
   try {
     const stores = await Store.find().populate("manager", "name email").sort({ storeNumber: 1 });
     res.json(stores);
   } catch (error) {
-    console.error("매장 목록 조회 오류:", error);
-    res.status(500).json({ message: "매장 목록 조회 실패" });
+    console.error("매장 목록 조회 ?�류:", error);
+    res.status(500).json({ message: "매장 목록 조회 ?�패" });
   }
 });
 
-// 매장 생성 (관리자 전용)
+// 매장 ?�성 (관리자 ?�용)
 router.post("/stores", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeNumber, storeName, location, manager, phone } = req.body;
 
     const existingStore = await Store.findOne({ storeNumber });
     if (existingStore) {
-      return res.status(400).json({ message: "이미 존재하는 매장 번호입니다." });
+      return res.status(400).json({ message: "?��? 존재?�는 매장 번호?�니??" });
     }
 
     const newStore = await Store.create({
@@ -43,12 +43,12 @@ router.post("/stores", verifyToken, verifyAdmin, async (req, res) => {
 
     res.status(201).json({ success: true, store: newStore });
   } catch (error) {
-    console.error("매장 생성 오류:", error);
-    res.status(500).json({ message: "매장 생성 실패" });
+    console.error("매장 ?�성 ?�류:", error);
+    res.status(500).json({ message: "매장 ?�성 ?�패" });
   }
 });
 
-// 매장 수정
+// 매장 ?�정
 router.put("/stores/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { storeName, location, manager, phone, isActive } = req.body;
@@ -59,17 +59,17 @@ router.put("/stores/:id", verifyToken, verifyAdmin, async (req, res) => {
     );
 
     if (!updatedStore) {
-      return res.status(404).json({ message: "매장을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "매장??찾을 ???�습?�다." });
     }
 
     res.json({ success: true, store: updatedStore });
   } catch (error) {
-    console.error("매장 수정 오류:", error);
-    res.status(500).json({ message: "매장 수정 실패" });
+    console.error("매장 ?�정 ?�류:", error);
+    res.status(500).json({ message: "매장 ?�정 ?�패" });
   }
 });
 
-// 매장 삭제
+// 매장 ??��
 router.delete("/stores/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const storeId = req.params.id;
@@ -77,32 +77,32 @@ router.delete("/stores/:id", verifyToken, verifyAdmin, async (req, res) => {
 
     if (relatedInventory > 0) {
       return res.status(400).json({
-        message: `이 매장에는 ${relatedInventory}개의 재고 데이터가 있습니다. 먼저 재고를 처리해주세요.`
+        message: `??매장?�는 ${relatedInventory}개의 ?�고 ?�이?��? ?�습?�다. 먼�? ?�고�?처리?�주?�요.`
       });
     }
 
     const deletedStore = await Store.findByIdAndDelete(storeId);
 
     if (!deletedStore) {
-      return res.status(404).json({ message: "매장을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "매장??찾을 ???�습?�다." });
     }
 
-    res.json({ success: true, message: "매장이 삭제되었습니다." });
+    res.json({ success: true, message: "매장????��?�었?�니??" });
   } catch (error) {
-    console.error("매장 삭제 오류:", error);
-    res.status(500).json({ message: "매장 삭제 실패" });
+    console.error("매장 ??�� ?�류:", error);
+    res.status(500).json({ message: "매장 ??�� ?�패" });
   }
 });
 
-// ==================== 창고 관리 ====================
+// ==================== 창고 관�?====================
 
 router.get("/warehouses", verifyToken, async (req, res) => {
   try {
     const warehouses = await Warehouse.find().sort({ warehouseName: 1 });
     res.json(warehouses);
   } catch (error) {
-    console.error("창고 목록 조회 오류:", error);
-    res.status(500).json({ message: "창고 목록 조회 실패" });
+    console.error("창고 목록 조회 ?�류:", error);
+    res.status(500).json({ message: "창고 목록 조회 ?�패" });
   }
 });
 
@@ -112,7 +112,7 @@ router.post("/warehouses", verifyToken, verifyAdmin, async (req, res) => {
 
     const existingWarehouse = await Warehouse.findOne({ warehouseName });
     if (existingWarehouse) {
-      return res.status(400).json({ message: "이미 존재하는 창고입니다." });
+      return res.status(400).json({ message: "?��? 존재?�는 창고?�니??" });
     }
 
     const newWarehouse = await Warehouse.create({
@@ -124,12 +124,12 @@ router.post("/warehouses", verifyToken, verifyAdmin, async (req, res) => {
 
     res.status(201).json({ success: true, warehouse: newWarehouse });
   } catch (error) {
-    console.error("창고 생성 오류:", error);
-    res.status(500).json({ message: "창고 생성 실패" });
+    console.error("창고 ?�성 ?�류:", error);
+    res.status(500).json({ message: "창고 ?�성 ?�패" });
   }
 });
 
-// ==================== 제품 관리 ====================
+// ==================== ?�품 관�?====================
 
 router.get("/products", verifyToken, async (req, res) => {
   try {
@@ -146,12 +146,12 @@ router.get("/products", verifyToken, async (req, res) => {
     const products = await Product.find(query).sort({ productName: 1 });
     res.json(products);
   } catch (error) {
-    console.error("제품 목록 조회 오류:", error);
-    res.status(500).json({ message: "제품 목록 조회 실패" });
+    console.error("?�품 목록 조회 ?�류:", error);
+    res.status(500).json({ message: "?�품 목록 조회 ?�패" });
   }
 });
 
-// ==================== 재고 ====================
+// ==================== ?�고 ====================
 
 router.get("/stock", verifyToken, async (req, res) => {
   try {
@@ -174,12 +174,12 @@ router.get("/stock", verifyToken, async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error("재고 조회 오류:", error);
-    res.status(500).json({ message: "재고 조회 실패" });
+    console.error("?�고 조회 ?�류:", error);
+    res.status(500).json({ message: "?�고 조회 ?�패" });
   }
 });
 
-// ==================== 재고 이동 ====================
+// ==================== ?�고 ?�동 ====================
 
 router.post("/transfer", verifyToken, async (req, res) => {
   try {
@@ -194,7 +194,7 @@ router.post("/transfer", verifyToken, async (req, res) => {
     } = req.body;
 
     if (!productId || !quantity || quantity <= 0) {
-      return res.status(400).json({ message: "제품과 수량을 확인해주세요." });
+      return res.status(400).json({ message: "?�품�??�량???�인?�주?�요." });
     }
 
     const fromQuery = {};
@@ -204,7 +204,7 @@ router.post("/transfer", verifyToken, async (req, res) => {
 
     const fromInventory = await Inventory.findOne(fromQuery);
     if (!fromInventory || fromInventory.quantity < quantity) {
-      return res.status(400).json({ message: "출발지의 재고가 부족합니다." });
+      return res.status(400).json({ message: "출발지???�고가 부족합?�다." });
     }
 
     const isAdmin = req.user.role === "admin" || req.user.role === "superadmin";
@@ -217,7 +217,7 @@ router.post("/transfer", verifyToken, async (req, res) => {
       quantity,
       reason,
       requestedBy: req.user._id,
-      status: isAdmin ? "승인" : "대기",
+      status: isAdmin ? "?�인" : "?��?,
       approvedBy: isAdmin ? req.user._id : null,
       approvedAt: isAdmin ? new Date() : null
     });
@@ -226,10 +226,10 @@ router.post("/transfer", verifyToken, async (req, res) => {
       await processStockTransfer(transfer);
     }
 
-    res.status(201).json({ success: true, message: "재고 이동이 등록되었습니다." });
+    res.status(201).json({ success: true, message: "?�고 ?�동???�록?�었?�니??" });
   } catch (error) {
-    console.error("재고 이동 요청 오류:", error);
-    res.status(500).json({ message: "재고 이동 요청 실패" });
+    console.error("?�고 ?�동 ?�청 ?�류:", error);
+    res.status(500).json({ message: "?�고 ?�동 ?�청 ?�패" });
   }
 });
 
@@ -242,7 +242,7 @@ async function processStockTransfer(transfer) {
 
   const fromInventory = await Inventory.findOne(fromQuery);
   if (!fromInventory || fromInventory.quantity < quantity) {
-    throw new Error("출발지 재고가 부족합니다.");
+    throw new Error("출발지 ?�고가 부족합?�다.");
   }
 
   fromInventory.quantity -= quantity;
@@ -268,7 +268,7 @@ async function processStockTransfer(transfer) {
     });
   }
 
-  transfer.status = "완료";
+  transfer.status = "?�료";
   transfer.completedAt = new Date();
   await transfer.save();
 }

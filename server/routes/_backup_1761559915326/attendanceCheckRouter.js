@@ -8,7 +8,7 @@ import Holiday from "../models/Holiday.js"';
 
 const router = express.Router();
 
-// ==================== 출퇴근 체크 ====================
+// ==================== 출퇴�?체크 ====================
 
 // 출근 체크
 router.post("/check-in", verifyToken, async (req, res) => {
@@ -18,24 +18,24 @@ router.post("/check-in", verifyToken, async (req, res) => {
     const today = new Date();
     const dateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    // 오늘 이미 출근 체크했는지 확인
+    // ?�늘 ?��? 출근 체크?�는지 ?�인
     const existing = await Attendance.findOne({
       user: req.user._id,
       date: dateOnly
     });
 
     if (existing && existing.checkInTime) {
-      return res.status(400).json({ message: "이미 출근 체크하였습니다." });
+      return res.status(400).json({ message: "?��? 출근 체크?��??�니??" });
     }
 
-    // 근무시간 설정 조회
+    // 근무?�간 ?�정 조회
     const settings = await WorkScheduleSettings.findOne({ store: storeId });
 
-    // 공휴일 확인
+    // 공휴???�인
     const holiday = await Holiday.findOne({ date: dateOnly });
     const isHolidayOrWeekend = !!holiday;
 
-    // 예정 출근시간 계산
+    // ?�정 출근?�간 계산
     let scheduledStartTime = settings?.weekdayStartTime || "10:20";
     if (isHolidayOrWeekend) {
       scheduledStartTime = settings?.weekendStartTime || "09:50";
@@ -45,25 +45,25 @@ router.post("/check-in", verifyToken, async (req, res) => {
     const scheduledCheckIn = new Date(dateOnly);
     scheduledCheckIn.setHours(hour, minute, 0, 0);
 
-    // 예정 퇴근시간 계산 (마감시간 + offset)
+    // ?�정 ?�근?�간 계산 (마감?�간 + offset)
     const closingTime = settings?.storeClosingTime || "22:00";
     const [closeHour, closeMinute] = closingTime.split(":").map(Number);
     const scheduledCheckOut = new Date(dateOnly);
     scheduledCheckOut.setHours(closeHour + (settings?.endTimeOffsetHours || 1), closeMinute, 0, 0);
 
-    // 지각 여부 확인
+    // 지�??��? ?�인
     const lateThreshold = settings?.lateThresholdMinutes || 5;
     const lateCutoff = new Date(scheduledCheckIn.getTime() + lateThreshold * 60000);
     const isLate = today > lateCutoff;
 
-    // 출근 기록 생성 또는 업데이트
+    // 출근 기록 ?�성 ?�는 ?�데?�트
     let attendance;
     if (existing) {
       existing.checkInTime = today;
       existing.checkInRecordedAt = today;
       existing.scheduledCheckIn = scheduledCheckIn;
       existing.scheduledCheckOut = scheduledCheckOut;
-      existing.status = isLate ? "지각" : "정상";
+      existing.status = isLate ? "지�? : "?�상";
       existing.breakMinutes = settings?.breakTimeMinutes || 60;
       existing.notes = notes;
       attendance = await existing.save();
@@ -76,29 +76,29 @@ router.post("/check-in", verifyToken, async (req, res) => {
         checkInRecordedAt: today,
         scheduledCheckIn,
         scheduledCheckOut,
-        status: isLate ? "지각" : "정상",
+        status: isLate ? "지�? : "?�상",
         breakMinutes: settings?.breakTimeMinutes || 60,
         notes
       });
     }
 
-    // 식대 자동 계산
+    // ?��? ?�동 계산
     attendance.calculateMealCount();
     await attendance.save();
 
     res.json({
       success: true,
-      message: isLate ? "지각 처리되었습니다." : "출근 체크 완료",
+      message: isLate ? "지�?처리?�었?�니??" : "출근 체크 ?�료",
       attendance,
       isLate
     });
   } catch (error) {
-    console.error("출근 체크 오류:", error);
-    res.status(500).json({ message: "출근 체크 실패" });
+    console.error("출근 체크 ?�류:", error);
+    res.status(500).json({ message: "출근 체크 ?�패" });
   }
 });
 
-// 퇴근 체크
+// ?�근 체크
 router.post("/check-out", verifyToken, async (req, res) => {
   try {
     const { notes } = req.body;
@@ -106,38 +106,38 @@ router.post("/check-out", verifyToken, async (req, res) => {
     const today = new Date();
     const dateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-    // 오늘 출근 기록 조회
+    // ?�늘 출근 기록 조회
     const attendance = await Attendance.findOne({
       user: req.user._id,
       date: dateOnly
     });
 
     if (!attendance) {
-      return res.status(400).json({ message: "출근 기록이 없습니다." });
+      return res.status(400).json({ message: "출근 기록???�습?�다." });
     }
 
     if (attendance.checkOutTime) {
-      return res.status(400).json({ message: "이미 퇴근 체크하였습니다." });
+      return res.status(400).json({ message: "?��? ?�근 체크?��??�니??" });
     }
 
     if (!attendance.checkInTime) {
-      return res.status(400).json({ message: "출근 체크를 먼저 해주세요." });
+      return res.status(400).json({ message: "출근 체크�?먼�? ?�주?�요." });
     }
 
-    // 퇴근 시간 기록
+    // ?�근 ?�간 기록
     attendance.checkOutTime = today;
     attendance.checkOutRecordedAt = today;
     if (notes) attendance.notes = (attendance.notes || "") + " " + notes;
 
-    // 근무시간 계산
+    // 근무?�간 계산
     attendance.calculateWorkTime();
 
-    // 식대 재계산 (20시 이후 퇴근 체크)
+    // ?��? ?�계??(20???�후 ?�근 체크)
     attendance.calculateMealCount();
 
-    // 조퇴 여부 확인
+    // 조퇴 ?��? ?�인
     if (attendance.scheduledCheckOut) {
-      const earlyThreshold = attendance.scheduledCheckOut.getTime() - 5 * 60000; // 5분 허용
+      const earlyThreshold = attendance.scheduledCheckOut.getTime() - 5 * 60000; // 5�??�용
       if (today.getTime() < earlyThreshold) {
         attendance.status = "조퇴";
       }
@@ -147,19 +147,19 @@ router.post("/check-out", verifyToken, async (req, res) => {
 
     res.json({
       success: true,
-      message: "퇴근 체크 완료",
+      message: "?�근 체크 ?�료",
       attendance,
       workMinutes: attendance.actualWorkMinutes
     });
   } catch (error) {
-    console.error("퇴근 체크 오류:", error);
-    res.status(500).json({ message: "퇴근 체크 실패" });
+    console.error("?�근 체크 ?�류:", error);
+    res.status(500).json({ message: "?�근 체크 ?�패" });
   }
 });
 
 // ==================== 근태 조회 ====================
 
-// 본인 근태 조회 (날짜 범위)
+// 본인 근태 조회 (?�짜 범위)
 router.get("/my-attendance", verifyToken, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -172,7 +172,7 @@ router.get("/my-attendance", verifyToken, async (req, res) => {
         $lte: new Date(endDate)
       };
     } else {
-      // 기본: 최근 30일
+      // 기본: 최근 30??
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       query.date = { $gte: thirtyDaysAgo };
@@ -184,12 +184,12 @@ router.get("/my-attendance", verifyToken, async (req, res) => {
 
     res.json(attendances);
   } catch (error) {
-    console.error("근태 조회 오류:", error);
-    res.status(500).json({ message: "근태 조회 실패" });
+    console.error("근태 조회 ?�류:", error);
+    res.status(500).json({ message: "근태 조회 ?�패" });
   }
 });
 
-// 특정 날짜 근태 조회
+// ?�정 ?�짜 근태 조회
 router.get("/my-attendance/:date", verifyToken, async (req, res) => {
   try {
     const targetDate = new Date(req.params.date);
@@ -202,12 +202,12 @@ router.get("/my-attendance/:date", verifyToken, async (req, res) => {
 
     res.json(attendance);
   } catch (error) {
-    console.error("근태 조회 오류:", error);
-    res.status(500).json({ message: "근태 조회 실패" });
+    console.error("근태 조회 ?�류:", error);
+    res.status(500).json({ message: "근태 조회 ?�패" });
   }
 });
 
-// 매장별 근태 조회 (관리자)
+// 매장�?근태 조회 (관리자)
 router.get("/store/:storeId", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -228,12 +228,12 @@ router.get("/store/:storeId", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json(attendances);
   } catch (error) {
-    console.error("매장 근태 조회 오류:", error);
-    res.status(500).json({ message: "매장 근태 조회 실패" });
+    console.error("매장 근태 조회 ?�류:", error);
+    res.status(500).json({ message: "매장 근태 조회 ?�패" });
   }
 });
 
-// 특정 사용자 근태 조회 (관리자)
+// ?�정 ?�용??근태 조회 (관리자)
 router.get("/user/:userId", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -253,14 +253,14 @@ router.get("/user/:userId", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json(attendances);
   } catch (error) {
-    console.error("사용자 근태 조회 오류:", error);
-    res.status(500).json({ message: "사용자 근태 조회 실패" });
+    console.error("?�용??근태 조회 ?�류:", error);
+    res.status(500).json({ message: "?�용??근태 조회 ?�패" });
   }
 });
 
-// ==================== 근태 수정 (관리자 직접 수정) ====================
+// ==================== 근태 ?�정 (관리자 직접 ?�정) ====================
 
-// 근태 정보 수정
+// 근태 ?�보 ?�정
 router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const {
@@ -280,10 +280,10 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
     const attendance = await Attendance.findById(req.params.id);
 
     if (!attendance) {
-      return res.status(404).json({ message: "근태 기록을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "근태 기록??찾을 ???�습?�다." });
     }
 
-    // 수정 가능한 필드들
+    // ?�정 가?�한 ?�드??
     if (checkInTime) attendance.checkInTime = new Date(checkInTime);
     if (checkOutTime) attendance.checkOutTime = new Date(checkOutTime);
     if (workType) attendance.workType = workType;
@@ -299,31 +299,31 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
     attendance.lastModifiedBy = req.user._id;
     attendance.updatedAt = new Date();
 
-    // 근무시간 재계산
+    // 근무?�간 ?�계??
     if (attendance.checkInTime && attendance.checkOutTime) {
       attendance.calculateWorkTime();
     }
 
-    // 식대 재계산
+    // ?��? ?�계??
     attendance.calculateMealCount();
 
     await attendance.save();
 
     res.json({ success: true, attendance });
   } catch (error) {
-    console.error("근태 수정 오류:", error);
-    res.status(500).json({ message: "근태 수정 실패" });
+    console.error("근태 ?�정 ?�류:", error);
+    res.status(500).json({ message: "근태 ?�정 ?�패" });
   }
 });
 
-// 근태 삭제
+// 근태 ??��
 router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     await Attendance.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "근태 기록이 삭제되었습니다." });
+    res.json({ success: true, message: "근태 기록????��?�었?�니??" });
   } catch (error) {
-    console.error("근태 삭제 오류:", error);
-    res.status(500).json({ message: "근태 삭제 실패" });
+    console.error("근태 ??�� ?�류:", error);
+    res.status(500).json({ message: "근태 ??�� ?�패" });
   }
 });
 

@@ -6,24 +6,24 @@ import MinimumStock from '../models/MinimumStock';
 
 const router = express.Router();
 
-// ==================== 엑셀 내보내기 ====================
+// ==================== ?��? ?�보?�기 ====================
 
-// 최소재고 미달 발주 목록 엑셀 내보내기 데이터 생성
+// 최소?�고 미달 발주 목록 ?��? ?�보?�기 ?�이???�성
 router.get("/reorder-list", verifyToken, async (req, res) => {
   try {
-    // 모든 재고 조회
+    // 모든 ?�고 조회
     const allInventory = await Inventory.find()
       .populate("product", "productName unit category productCode")
       .populate("warehouse", "warehouseName")
       .populate("store", "storeNumber storeName");
 
-    // 최소재고 설정 조회
+    // 최소?�고 ?�정 조회
     const minimumStocks = await MinimumStock.find()
       .populate("product")
       .populate("warehouse")
       .populate("store");
 
-    // 최소재고 미달 항목 필터링 및 발주 목록 생성
+    // 최소?�고 미달 ??�� ?�터�?�?발주 목록 ?�성
     const reorderList = [];
 
     for (const inv of allInventory) {
@@ -35,7 +35,7 @@ router.get("/reorder-list", verifyToken, async (req, res) => {
       });
 
       if (minStock && inv.quantity <= minStock.minimumQuantity) {
-        // 위치 정보
+        // ?�치 ?�보
         let locationName = "";
         let locationType = "";
 
@@ -43,7 +43,7 @@ router.get("/reorder-list", verifyToken, async (req, res) => {
           locationName = inv.warehouse.warehouseName;
           locationType = "창고";
         } else if (inv.store) {
-          locationName = `${inv.store.storeNumber}번 매장 (${inv.store.storeName})`;
+          locationName = `${inv.store.storeNumber}�?매장 (${inv.store.storeName})`;
           locationType = "매장";
         }
 
@@ -63,7 +63,7 @@ router.get("/reorder-list", verifyToken, async (req, res) => {
       }
     }
 
-    // 제품명 기준으로 정렬
+    // ?�품�?기�??�로 ?�렬
     reorderList.sort((a, b) => a.productName.localeCompare(b.productName, 'ko-KR'));
 
     res.json({
@@ -73,12 +73,12 @@ router.get("/reorder-list", verifyToken, async (req, res) => {
       totalItems: reorderList.length,
     });
   } catch (error) {
-    console.error("발주 목록 생성 오류:", error);
-    res.status(500).json({ message: "발주 목록 생성 실패" });
+    console.error("발주 목록 ?�성 ?�류:", error);
+    res.status(500).json({ message: "발주 목록 ?�성 ?�패" });
   }
 });
 
-// 전체 재고 현황 리포트 데이터
+// ?�체 ?�고 ?�황 리포???�이??
 router.get("/inventory-report", verifyToken, async (req, res) => {
   try {
     const inventory = await Inventory.find()
@@ -95,7 +95,7 @@ router.get("/inventory-report", verifyToken, async (req, res) => {
         locationName = inv.warehouse.warehouseName;
         locationType = "창고";
       } else if (inv.store) {
-        locationName = `${inv.store.storeNumber}번 매장 (${inv.store.storeName})`;
+        locationName = `${inv.store.storeNumber}�?매장 (${inv.store.storeName})`;
         locationType = "매장";
       }
 
@@ -109,7 +109,7 @@ router.get("/inventory-report", verifyToken, async (req, res) => {
         locationName,
         quantity: inv.quantity,
         minimumStock: inv.minimumStock || 0,
-        status: inv.quantity <= inv.minimumStock ? "부족" : "정상",
+        status: inv.quantity <= inv.minimumStock ? "부�? : "?�상",
         lastUpdated: inv.lastUpdatedAt,
       };
     });
@@ -121,8 +121,8 @@ router.get("/inventory-report", verifyToken, async (req, res) => {
       totalItems: reportData.length,
     });
   } catch (error) {
-    console.error("재고 리포트 생성 오류:", error);
-    res.status(500).json({ message: "재고 리포트 생성 실패" });
+    console.error("?�고 리포???�성 ?�류:", error);
+    res.status(500).json({ message: "?�고 리포???�성 ?�패" });
   }
 });
 

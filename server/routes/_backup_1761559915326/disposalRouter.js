@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 
 const router = express.Router();
 
-// Multer 설정 (폐기 사진 업로드)
+// Multer ?�정 (?�기 ?�진 ?�로??
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/disposal/");
@@ -32,22 +32,22 @@ const upload = multer({
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
     if (mimetype && extname) return cb(null, true);
-    cb(new Error("이미지 파일만 업로드 가능합니다."));
+    cb(new Error("?��?지 ?�일�??�로??가?�합?�다."));
   }
 });
 
-// ==================== 폐기 관리 ====================
-// 폐기 등록 (사진 포함)
+// ==================== ?�기 관�?====================
+// ?�기 ?�록 (?�진 ?�함)
 router.post("/", verifyToken, upload.array("photos", 5), async (req, res) => {
   try {
     const { storeId, date, productId, quantity, reason, reasonDetail } = req.body;
 
     if (!storeId || !date || !productId || !quantity || !reason) {
-      return res.status(400).json({ message: "매장, 날짜, 제품, 수량, 사유는 필수입니다." });
+      return res.status(400).json({ message: "매장, ?�짜, ?�품, ?�량, ?�유???�수?�니??" });
     }
 
-    if (reason === "기타" && !reasonDetail) {
-      return res.status(400).json({ message: "기타 사유를 선택한 경우 상세 사유를 입력해주세요." });
+    if (reason === "기�?" && !reasonDetail) {
+      return res.status(400).json({ message: "기�? ?�유�??�택??경우 ?�세 ?�유�??�력?�주?�요." });
     }
 
     const photos = req.files ? req.files.map(f => f.filename) : [];
@@ -69,12 +69,12 @@ router.post("/", verifyToken, upload.array("photos", 5), async (req, res) => {
 
     res.status(201).json({ success: true, disposal });
   } catch (error) {
-    console.error("폐기 등록 오류:", error);
-    res.status(500).json({ message: "폐기 등록 실패" });
+    console.error("?�기 ?�록 ?�류:", error);
+    res.status(500).json({ message: "?�기 ?�록 ?�패" });
   }
 });
 
-// ✅ 이하 기존 코드 유지
-// (중략... ExcelJS 부분 포함)
+// ???�하 기존 코드 ?��?
+// (중략... ExcelJS 부�??�함)
 
 export default router;

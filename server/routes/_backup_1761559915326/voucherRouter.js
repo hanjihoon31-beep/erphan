@@ -5,9 +5,9 @@ import VoucherType from "../models/VoucherType.js"';
 
 const router = express.Router();
 
-// ==================== 권면 타입 관리 ====================
+// ==================== 권면 ?�??관�?====================
 
-// 모든 권면 타입 조회
+// 모든 권면 ?�??조회
 router.get("/", verifyToken, async (req, res) => {
   try {
     const { category, includeInactive } = req.query;
@@ -30,12 +30,12 @@ router.get("/", verifyToken, async (req, res) => {
 
     res.json(vouchers);
   } catch (error) {
-    console.error("권면 타입 조회 오류:", error);
-    res.status(500).json({ message: "권면 타입 조회 실패" });
+    console.error("권면 ?�??조회 ?�류:", error);
+    res.status(500).json({ message: "권면 ?�??조회 ?�패" });
   }
 });
 
-// 특정 권면 타입 조회
+// ?�정 권면 ?�??조회
 router.get("/:id", verifyToken, async (req, res) => {
   try {
     const voucher = await VoucherType.findById(req.params.id)
@@ -43,34 +43,34 @@ router.get("/:id", verifyToken, async (req, res) => {
       .populate("lastModifiedBy", "name email");
 
     if (!voucher) {
-      return res.status(404).json({ message: "권면 타입을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "권면 ?�?�을 찾을 ???�습?�다." });
     }
 
     res.json(voucher);
   } catch (error) {
-    console.error("권면 타입 조회 오류:", error);
-    res.status(500).json({ message: "권면 타입 조회 실패" });
+    console.error("권면 ?�??조회 ?�류:", error);
+    res.status(500).json({ message: "권면 ?�??조회 ?�패" });
   }
 });
 
-// 권면 타입 등록 (근무자 가능)
+// 권면 ?�???�록 (근무??가??
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { category, name } = req.body;
 
     if (!category || !name || !name.trim()) {
       return res.status(400).json({
-        message: "카테고리와 권종명을 입력해주세요."
+        message: "카테고리?� 권종명을 ?�력?�주?�요."
       });
     }
 
-    if (!["패키지권", "티켓"].includes(category)) {
+    if (!["?�키지�?, "?�켓"].includes(category)) {
       return res.status(400).json({
-        message: "카테고리는 '패키지권' 또는 '티켓'만 가능합니다."
+        message: "카테고리??'?�키지�? ?�는 '?�켓'�?가?�합?�다."
       });
     }
 
-    // 중복 확인 (같은 카테고리 내에서)
+    // 중복 ?�인 (같�? 카테고리 ?�에??
     const existing = await VoucherType.findOne({
       category,
       name: name.trim(),
@@ -79,7 +79,7 @@ router.post("/", verifyToken, async (req, res) => {
 
     if (existing) {
       return res.status(400).json({
-        message: "이미 등록된 권종명입니다."
+        message: "?��? ?�록??권종명입?�다."
       });
     }
 
@@ -94,29 +94,29 @@ router.post("/", verifyToken, async (req, res) => {
 
     res.status(201).json({ success: true, voucher });
   } catch (error) {
-    console.error("권면 타입 등록 오류:", error);
-    res.status(500).json({ message: "권면 타입 등록 실패" });
+    console.error("권면 ?�???�록 ?�류:", error);
+    res.status(500).json({ message: "권면 ?�???�록 ?�패" });
   }
 });
 
-// 권면 타입 이름 수정 (관리자)
+// 권면 ?�???�름 ?�정 (관리자)
 router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const { name } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({
-        message: "권종명을 입력해주세요."
+        message: "권종명을 ?�력?�주?�요."
       });
     }
 
     const voucher = await VoucherType.findById(req.params.id);
 
     if (!voucher) {
-      return res.status(404).json({ message: "권면 타입을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "권면 ?�?�을 찾을 ???�습?�다." });
     }
 
-    // 중복 확인 (같은 카테고리 내에서, 자기 자신 제외)
+    // 중복 ?�인 (같�? 카테고리 ?�에?? ?�기 ?�신 ?�외)
     const existing = await VoucherType.findOne({
       category: voucher.category,
       name: name.trim(),
@@ -126,7 +126,7 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
 
     if (existing) {
       return res.status(400).json({
-        message: "이미 등록된 권종명입니다."
+        message: "?��? ?�록??권종명입?�다."
       });
     }
 
@@ -141,18 +141,18 @@ router.put("/:id", verifyToken, verifyAdmin, async (req, res) => {
 
     res.json({ success: true, voucher });
   } catch (error) {
-    console.error("권면 타입 수정 오류:", error);
-    res.status(500).json({ message: "권면 타입 수정 실패" });
+    console.error("권면 ?�???�정 ?�류:", error);
+    res.status(500).json({ message: "권면 ?�???�정 ?�패" });
   }
 });
 
-// 권면 타입 비활성화 (관리자)
+// 권면 ?�??비활?�화 (관리자)
 router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const voucher = await VoucherType.findById(req.params.id);
 
     if (!voucher) {
-      return res.status(404).json({ message: "권면 타입을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "권면 ?�?�을 찾을 ???�습?�다." });
     }
 
     voucher.isActive = false;
@@ -161,20 +161,20 @@ router.delete("/:id", verifyToken, verifyAdmin, async (req, res) => {
 
     await voucher.save();
 
-    res.json({ success: true, message: "권면 타입이 비활성화되었습니다." });
+    res.json({ success: true, message: "권면 ?�?�이 비활?�화?�었?�니??" });
   } catch (error) {
-    console.error("권면 타입 비활성화 오류:", error);
-    res.status(500).json({ message: "권면 타입 비활성화 실패" });
+    console.error("권면 ?�??비활?�화 ?�류:", error);
+    res.status(500).json({ message: "권면 ?�??비활?�화 ?�패" });
   }
 });
 
-// 권면 타입 재활성화 (관리자)
+// 권면 ?�???�활?�화 (관리자)
 router.patch("/:id/reactivate", verifyToken, verifyAdmin, async (req, res) => {
   try {
     const voucher = await VoucherType.findById(req.params.id);
 
     if (!voucher) {
-      return res.status(404).json({ message: "권면 타입을 찾을 수 없습니다." });
+      return res.status(404).json({ message: "권면 ?�?�을 찾을 ???�습?�다." });
     }
 
     voucher.isActive = true;
@@ -183,10 +183,10 @@ router.patch("/:id/reactivate", verifyToken, verifyAdmin, async (req, res) => {
 
     await voucher.save();
 
-    res.json({ success: true, message: "권면 타입이 재활성화되었습니다." });
+    res.json({ success: true, message: "권면 ?�?�이 ?�활?�화?�었?�니??" });
   } catch (error) {
-    console.error("권면 타입 재활성화 오류:", error);
-    res.status(500).json({ message: "권면 타입 재활성화 실패" });
+    console.error("권면 ?�???�활?�화 ?�류:", error);
+    res.status(500).json({ message: "권면 ?�???�활?�화 ?�패" });
   }
 });
 
