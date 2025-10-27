@@ -1,5 +1,5 @@
 // server/models/StockTransfer.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const stockTransferSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
@@ -45,4 +45,4 @@ const stockTransferSchema = new mongoose.Schema({
 stockTransferSchema.index({ status: 1, requestedAt: -1 });
 stockTransferSchema.index({ product: 1 });
 
-module.exports = mongoose.model("StockTransfer", stockTransferSchema);
+export default mongoose;.model("StockTransfer", stockTransferSchema);

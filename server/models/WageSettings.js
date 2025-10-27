@@ -1,5 +1,5 @@
 // server/models/WageSettings.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const wageSettingsSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -22,4 +22,4 @@ const wageSettingsSchema = new mongoose.Schema({
 // 인덱스: 사용자와 적용일자
 wageSettingsSchema.index({ user: 1, effectiveDate: -1 });
 
-module.exports = mongoose.model("WageSettings", wageSettingsSchema);
+export default mongoose;.model("WageSettings", wageSettingsSchema);

@@ -1,5 +1,5 @@
 // server/models/Attendance.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const attendanceSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -137,4 +137,4 @@ attendanceSchema.methods.calculateMealCount = function() {
   }
 };
 
-module.exports = mongoose.model("Attendance", attendanceSchema);
+export default mongoose;.model("Attendance", attendanceSchema);

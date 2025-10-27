@@ -1,5 +1,5 @@
 // server/models/Warehouse.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const warehouseSchema = new mongoose.Schema({
   warehouseName: { type: String, required: true, unique: true },
@@ -14,4 +14,4 @@ const warehouseSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Warehouse", warehouseSchema);
+export default mongoose;.model("Warehouse", warehouseSchema);

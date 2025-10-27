@@ -1,5 +1,5 @@
 // server/models/DailyInventoryTemplate.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const dailyInventoryTemplateSchema = new mongoose.Schema({
   store: { type: mongoose.Schema.Types.ObjectId, ref: "Store", required: true },
@@ -21,4 +21,4 @@ const dailyInventoryTemplateSchema = new mongoose.Schema({
 // 복합 인덱스: 같은 매장에 같은 제품 중복 방지
 dailyInventoryTemplateSchema.index({ store: 1, product: 1 }, { unique: true });
 
-module.exports = mongoose.model("DailyInventoryTemplate", dailyInventoryTemplateSchema);
+export default mongoose;.model("DailyInventoryTemplate", dailyInventoryTemplateSchema);

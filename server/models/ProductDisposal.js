@@ -1,5 +1,5 @@
 // server/models/ProductDisposal.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const productDisposalSchema = new mongoose.Schema({
   // 매장
@@ -99,4 +99,4 @@ const productDisposalSchema = new mongoose.Schema({
 productDisposalSchema.index({ store: 1, date: -1 });
 productDisposalSchema.index({ status: 1 });
 
-module.exports = mongoose.model("ProductDisposal", productDisposalSchema);
+export default mongoose;.model("ProductDisposal", productDisposalSchema);

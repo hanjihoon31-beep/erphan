@@ -1,5 +1,5 @@
 // server/models/Inventory.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const inventorySchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
@@ -29,4 +29,4 @@ inventorySchema.virtual('locationType').get(function() {
   return this.warehouse ? 'warehouse' : 'store';
 });
 
-module.exports = mongoose.model("Inventory", inventorySchema);
+export default mongoose;.model("Inventory", inventorySchema);

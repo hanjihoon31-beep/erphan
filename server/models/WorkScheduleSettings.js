@@ -1,5 +1,5 @@
 // server/models/WorkScheduleSettings.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const workScheduleSettingsSchema = new mongoose.Schema({
   store: { type: mongoose.Schema.Types.ObjectId, ref: "Store", required: true },
@@ -35,4 +35,4 @@ const workScheduleSettingsSchema = new mongoose.Schema({
 // 매장당 하나의 설정만 가능
 workScheduleSettingsSchema.index({ store: 1 }, { unique: true });
 
-module.exports = mongoose.model("WorkScheduleSettings", workScheduleSettingsSchema);
+export default mongoose;.model("WorkScheduleSettings", workScheduleSettingsSchema);

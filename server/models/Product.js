@@ -1,5 +1,5 @@
 // server/models/Product.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
   productCode: { type: String, unique: true, sparse: true }, // SKU 코드 (선택)
@@ -19,4 +19,4 @@ const productSchema = new mongoose.Schema({
 // 제품명으로 검색할 수 있도록 인덱스 추가
 productSchema.index({ productName: 'text' });
 
-module.exports = mongoose.model("Product", productSchema);
+export default mongoose;.model("Product", productSchema);

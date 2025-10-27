@@ -1,5 +1,5 @@
 // server/models/MinimumStock.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const minimumStockSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
@@ -24,4 +24,4 @@ const minimumStockSchema = new mongoose.Schema({
 // 복합 인덱스: 같은 제품의 같은 위치에 중복 설정 방지
 minimumStockSchema.index({ product: 1, warehouse: 1, store: 1 }, { unique: true });
 
-module.exports = mongoose.model("MinimumStock", minimumStockSchema);
+export default mongoose;.model("MinimumStock", minimumStockSchema);

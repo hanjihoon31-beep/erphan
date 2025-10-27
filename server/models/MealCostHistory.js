@@ -1,5 +1,5 @@
 // server/models/MealCostHistory.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const mealCostHistorySchema = new mongoose.Schema({
   // 1식 금액 (원)
@@ -23,4 +23,4 @@ const mealCostHistorySchema = new mongoose.Schema({
 // 인덱스: 날짜 범위 검색을 위해
 mealCostHistorySchema.index({ effectiveDate: -1 });
 
-module.exports = mongoose.model("MealCostHistory", mealCostHistorySchema);
+export default mongoose;.model("MealCostHistory", mealCostHistorySchema);

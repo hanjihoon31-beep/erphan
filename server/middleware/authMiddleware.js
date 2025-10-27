@@ -1,6 +1,6 @@
 // server/middleware/authMiddleware.js
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
 // JWT 토큰 검증 미들웨어
 const verifyToken = async (req, res, next) => {

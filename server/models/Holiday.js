@@ -1,5 +1,5 @@
 // server/models/Holiday.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const holidaySchema = new mongoose.Schema({
   // 공휴일 날짜
@@ -26,4 +26,4 @@ const holidaySchema = new mongoose.Schema({
 
 holidaySchema.index({ date: 1 });
 
-module.exports = mongoose.model("Holiday", holidaySchema);
+export default mongoose;.model("Holiday", holidaySchema);

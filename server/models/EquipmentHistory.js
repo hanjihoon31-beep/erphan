@@ -1,5 +1,5 @@
 // server/models/EquipmentHistory.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const equipmentHistorySchema = new mongoose.Schema({
   equipment: { type: mongoose.Schema.Types.ObjectId, ref: "Equipment", required: true },
@@ -38,4 +38,4 @@ const equipmentHistorySchema = new mongoose.Schema({
 // 인덱스
 equipmentHistorySchema.index({ equipment: 1, actionDate: -1 });
 
-module.exports = mongoose.model("EquipmentHistory", equipmentHistorySchema);
+export default mongoose;.model("EquipmentHistory", equipmentHistorySchema);

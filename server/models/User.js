@@ -1,5 +1,5 @@
 // server/models/User.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   employeeId: { type: String, required: true, unique: true }, // 사번
@@ -15,4 +15,4 @@ const userSchema = new mongoose.Schema({
   inactivationReason: { type: String }, // 퇴사 사유
 });
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose;.model("User", userSchema);

@@ -1,5 +1,5 @@
 // server/models/GiftCardType.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const giftCardTypeSchema = new mongoose.Schema({
   // 상품권 이름
@@ -40,4 +40,4 @@ const giftCardTypeSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model("GiftCardType", giftCardTypeSchema);
+export default mongoose;.model("GiftCardType", giftCardTypeSchema);

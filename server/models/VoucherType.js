@@ -1,5 +1,5 @@
 // server/models/VoucherType.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const voucherTypeSchema = new mongoose.Schema({
   // 카테고리
@@ -65,4 +65,4 @@ const voucherTypeSchema = new mongoose.Schema({
 // 카테고리와 이름으로 인덱스
 voucherTypeSchema.index({ category: 1, name: 1 });
 
-module.exports = mongoose.model("VoucherType", voucherTypeSchema);
+export default mongoose;.model("VoucherType", voucherTypeSchema);

@@ -1,5 +1,5 @@
 // server/models/DailyCash.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const dailyCashSchema = new mongoose.Schema({
   // 매장
@@ -161,4 +161,4 @@ dailyCashSchema.pre("save", function(next) {
   next();
 });
 
-module.exports = mongoose.model("DailyCash", dailyCashSchema);
+export default mongoose;.model("DailyCash", dailyCashSchema);

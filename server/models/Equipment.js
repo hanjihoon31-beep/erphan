@@ -1,5 +1,5 @@
 // server/models/Equipment.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const equipmentSchema = new mongoose.Schema({
   store: { type: mongoose.Schema.Types.ObjectId, ref: "Store", required: true },
@@ -58,4 +58,4 @@ equipmentSchema.index({ store: 1, equipmentName: 1 });
 equipmentSchema.index({ status: 1 });
 equipmentSchema.index({ nextInspectionDate: 1 }); // 점검 예정일 기준 조회
 
-module.exports = mongoose.model("Equipment", equipmentSchema);
+export default mongoose;.model("Equipment", equipmentSchema);

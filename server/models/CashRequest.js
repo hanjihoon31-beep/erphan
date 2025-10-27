@@ -1,5 +1,5 @@
 // server/models/CashRequest.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const cashRequestSchema = new mongoose.Schema({
   // 매장
@@ -119,4 +119,4 @@ cashRequestSchema.pre("save", function(next) {
   next();
 });
 
-module.exports = mongoose.model("CashRequest", cashRequestSchema);
+export default mongoose;.model("CashRequest", cashRequestSchema);

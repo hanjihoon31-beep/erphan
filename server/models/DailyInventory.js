@@ -1,5 +1,5 @@
 // server/models/DailyInventory.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const dailyInventorySchema = new mongoose.Schema({
   store: { type: mongoose.Schema.Types.ObjectId, ref: "Store", required: true },
@@ -63,4 +63,4 @@ dailyInventorySchema.index({ store: 1, product: 1, date: 1 }, { unique: true });
 dailyInventorySchema.index({ store: 1, date: -1 });
 dailyInventorySchema.index({ status: 1, date: -1 });
 
-module.exports = mongoose.model("DailyInventory", dailyInventorySchema);
+export default mongoose;.model("DailyInventory", dailyInventorySchema);

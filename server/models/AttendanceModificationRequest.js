@@ -1,5 +1,5 @@
 // server/models/AttendanceModificationRequest.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const attendanceModificationRequestSchema = new mongoose.Schema({
   attendance: { type: mongoose.Schema.Types.ObjectId, ref: "Attendance", required: true },
@@ -41,4 +41,4 @@ const attendanceModificationRequestSchema = new mongoose.Schema({
 attendanceModificationRequestSchema.index({ status: 1, requestedAt: -1 });
 attendanceModificationRequestSchema.index({ attendance: 1 });
 
-module.exports = mongoose.model("AttendanceModificationRequest", attendanceModificationRequestSchema);
+export default mongoose;.model("AttendanceModificationRequest", attendanceModificationRequestSchema);

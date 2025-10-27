@@ -1,5 +1,5 @@
 // server/models/Store.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const storeSchema = new mongoose.Schema({
   storeNumber: { type: Number, required: true, unique: true }, // 1, 2, 3, ..., 12
@@ -11,4 +11,4 @@ const storeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Store", storeSchema);
+export default mongoose;.model("Store", storeSchema);
