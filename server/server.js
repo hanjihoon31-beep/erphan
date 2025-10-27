@@ -1,54 +1,45 @@
-// server/server.js
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+
+import authRouter from "./routes/authRouter.js";
+import adminRouter from "./routes/adminRouter.js";
+import inventoryRouter from "./routes/inventoryRouter.js";
+import reportRouter from "./routes/reportRouter.js";
+import dailyInventoryRouter from "./routes/dailyInventoryRouter.js";
+import equipmentRouter from "./routes/equipmentRouter.js";
+import attendanceRouter from "./routes/attendanceRouter.js";
+import attendanceCheckRouter from "./routes/attendanceCheckRouter.js";
+import payrollRouter from "./routes/payrollRouter.js";
+import giftCardRouter from "./routes/giftCardRouter.js";
+import dailyCashRouter from "./routes/dailyCashRouter.js";
+import disposalRouter from "./routes/disposalRouter.js";
+import voucherRouter from "./routes/voucherRouter.js";
 import approvalRouter from "./routes/approvalRouter.js";
-
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const authRouter = require("./routes/authRouter");
-const adminRouter = require("./routes/adminRouter");
-const inventoryRouter = require("./routes/inventoryRouter");
-const reportRouter = require("./routes/reportRouter");
-const dailyInventoryRouter = require("./routes/dailyInventoryRouter");
-const equipmentRouter = require("./routes/equipmentRouter");
-const attendanceRouter = require("./routes/attendanceRouter");
-const attendanceCheckRouter = require("./routes/attendanceCheckRouter");
-const payrollRouter = require("./routes/payrollRouter");
-const giftCardRouter = require("./routes/giftCardRouter");
-const dailyCashRouter = require("./routes/dailyCashRouter");
-const disposalRouter = require("./routes/disposalRouter");
-const voucherRouter = require("./routes/voucherRouter");
-
-const { initDailyInventoryScheduler } = require("./utils/dailyInventoryScheduler");
+import { initDailyInventoryScheduler } from "./utils/dailyInventoryScheduler.js";
 
 dotenv.config();
 const app = express();
-dotenv.config();
-app.use(express.json());
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
 // 정적 파일 제공 (업로드된 이미지)
 app.use("/uploads", express.static("uploads"));
 
 // ✅ MongoDB 연결
 console.log("🔍 MongoDB 연결 시도 중...");
-console.log("📍 URI:", process.env.MONGO_URI.replace(/:[^:]*@/, ':****@')); // 비밀번호 숨김
+console.log("📍 URI:", process.env.MONGO_URI.replace(/:[^:]*@/, ":****@")); // 비밀번호 숨김
 
+mongoose.set("strictQuery", false);
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { dbName: "erphan_db" })
   .then(() => {
     console.log("✅ MongoDB 연결 성공!");
     console.log("📦 데이터베이스:", mongoose.connection.name);
-    // 일일 재고 자동 생성 스케줄러 시작
     initDailyInventoryScheduler();
   })
   .catch((err) => {
@@ -74,16 +65,10 @@ app.use("/api/disposal", disposalRouter);
 app.use("/api/vouchers", voucherRouter);
 app.use("/api/approvals", approvalRouter);
 
+// ✅ 기본 라우트
 app.get("/", (req, res) => {
   res.send("ERP Server Running with Cash Management & Voucher System ✅");
 });
 
 const PORT = process.env.PORT || 3001;
-mongoose.set("strictQuery", false);
-mongoose
-  .connect(process.env.MONGO_URI, { dbName: "erphan_db" })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
-
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
