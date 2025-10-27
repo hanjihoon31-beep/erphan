@@ -28,3 +28,4 @@ if (fs.existsSync(oldFile)) {
 // ✅ GitHub에 자동 푸시
 run("node autoPush.js");
 // 수정 감지됨: C:\Users\thsut\erphan\src\pages\Erphan.css (2025-10-27T04:19:39.388Z)
+// 수정 감지됨: C:\Users\thsut\erphan\.git\refs\remotes (2025-10-27T04:20:52.164Z)
