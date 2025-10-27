@@ -314,7 +314,7 @@ router.post("/submit-all/:storeId/:date", verifyToken, async (req, res) => {
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
 
-    const inventories = await DailyInventory.find({
+    import Inventory from "../models/Inventory.js";
       store: storeId,
       date: targetDate,
       status: { $in: ["대기", "작성중"] }
