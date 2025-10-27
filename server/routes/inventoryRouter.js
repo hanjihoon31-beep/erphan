@@ -4,7 +4,7 @@ const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
 import Store from '../models/Store';
 import Warehouse from '../models/Warehouse';
 import Product from '../models/Product';
-import Inventory from '../models/Inventory';
+import Inventory from '../models/Inventory.js';
 import MinimumStock from '../models/MinimumStock';
 import StockTransfer from '../models/StockTransfer';
 
