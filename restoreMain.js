@@ -16,7 +16,8 @@ try {
   if (!token) throw new Error("❌ GITHUB_TOKEN이 .env에 설정되어 있지 않습니다.");
 
   // GitHub 인증용 URL 구성
-  const authRepoUrl = `https://${token}@github.com/${repo}.git`;
+const authRepoUrl = `https://oauth2:${token}@github.com/${repo}.git`;
+
 
   // 백업 브랜치 생성 및 푸시
   console.log(`📦 main 브랜치를 ${backupBranch}로 백업 중...`);
