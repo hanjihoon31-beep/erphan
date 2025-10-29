@@ -26,3 +26,4 @@ dist-ssr
 .git/
 .gitignore
 node_modules/".env" 
+".env" 
