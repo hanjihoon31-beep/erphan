@@ -25,4 +25,4 @@ dist-ssr
 # 기본 Git 관련
 .git/
 .gitignore
-node_modules/
+node_modules/".env" 
